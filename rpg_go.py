@@ -10,9 +10,9 @@ HEIGHT = 150
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('DINO')
+pygame.display.set_caption('RPG GO!')
 
-class Dino:
+class Player:
     def __init__(self):
         self.width = 44.0
         self.height = 44.0
@@ -164,7 +164,7 @@ class Score:
 class Game:
     def __init__(self, high_score = 0):
         self.bg = [BG(0), BG(WIDTH)]
-        self.dino = Dino()
+        self.player = Player()
         self.obstacles = []
         self.obstacle_dist = 84
         self.collision = Collision()
@@ -200,8 +200,8 @@ class Game:
         #list with cactus
         if len(self.obstacles) > 0:
             prev_cactus = self.obstacles[-1]
-            x = random.randint(prev_cactus.x + self.dino.width + self.obstacle_dist, 
-                WIDTH + prev_cactus.x + self.dino.width + self.obstacle_dist)
+            x = random.randint(prev_cactus.x + self.player.width + self.obstacle_dist, 
+                WIDTH + prev_cactus.x + self.player.width + self.obstacle_dist)
 
         #empty
         else:
@@ -222,7 +222,7 @@ def main():
     #objects
     game = Game()
     clock = pygame.time.Clock()
-    dino = game.dino
+    player = game.player
     delay = 0
 
     while True:
@@ -235,9 +235,9 @@ def main():
                 bg.update(-game.speed)
                 bg.show()
             
-            #dino
-            dino.update(delay)
-            dino.show()
+            #player
+            player.update(delay)
+            player.show()
 
             #cactus
             if game.can_spawn(delay):
@@ -248,7 +248,7 @@ def main():
                 cactus.show()
 
                 #collision
-                if game.collision.between(dino, cactus):
+                if game.collision.between(player, cactus):
                     game.over()
 
             game.score.update(delay)
@@ -262,13 +262,13 @@ def main():
                 if event.key == pygame.K_SPACE:
                     if not game.is_playing and game.is_over:
                         game.restart()
-                        dino = game.dino
+                        player = game.player
                         delay = 0
                     elif not game.is_playing and not game.is_over:
                         game.start()
                     
-                    if game.is_playing and not game.is_over and dino.on_ground:
-                        dino.jump()
+                    if game.is_playing and not game.is_over and player.on_ground:
+                        player.jump()
 
         clock.tick(60)
         pygame.display.update()
