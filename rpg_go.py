@@ -192,7 +192,7 @@ class Game:
         self.obstacle_dist = 84
         self.collision = Collision()
         self.score = Score(high_score)
-        self.speed = 3
+        self.speed = 4
         self.is_playing = False
         self.is_over = False
         self.set_labels()
@@ -247,8 +247,8 @@ class Game:
         else:
             x = random.randint(WIDTH + 100, 1000)
 
-        # obstacle_type = random.randint(0,1)
-        obstacle_type = 1
+        obstacle_type = random.choice([0,1])
+        # obstacle_type = 1
 
         if obstacle_type == 0:
             #create new cactus
@@ -256,7 +256,7 @@ class Game:
             self.obstacles.append(cactus)
         else:
             #calculate y value for bird
-            y = random.randint(30, HEIGHT - 44 - 50)
+            y = random.choice([40, 90])
             #create new bird
             bird = Bird(x, y)
             self.obstacles.append(bird)
