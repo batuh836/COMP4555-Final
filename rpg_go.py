@@ -31,7 +31,7 @@ class Player:
         self.set_sound()
         self.show()
 
-    def update(self, delay):
+    def update(self, loop):
         #jumping
         if self.jumping:
             if self.jump_time <= self.jump_duration:
@@ -48,7 +48,7 @@ class Player:
             else: 
                 self.stop()
         #walking 
-        elif self.on_ground and delay % 4 == 0:
+        elif self.on_ground and loop % 4 == 0:
             self.texture_num = (self.texture_num + 1) % 3
             self.set_texture()
 
@@ -102,11 +102,34 @@ class Cactus:
     def set_rect(self):
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
+class Bird:
+    def __init__(self, x, y):
+        self.width = 34
+        self.height = 24
+        self.x = x
+        self.y = y
+        self.set_texture()
+        self.set_rect()
+        self.show()
+    
+    def update(self, dx):
+        self.x += dx
+        self.rect.x = self.x
+
+    def show(self):
+        screen.blit(self.texture, (self.x, self.y))
+
+    def set_texture(self):
+        path = os.path.join('assets/images/bird.png')
+        self.texture = pygame.image.load(path)
+        self.texture = pygame.transform.scale(self.texture, (self.width, self.height))
+
+    def set_rect(self):
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+
 class Collision:
     def between(self, obj1, obj2):
         if obj1.rect.colliderect(obj2.rect):
-            print(f"player x = {obj1.rect.x}")
-            print(f"player y = {obj1.rect.y}")
             return True
 
 class BG:
@@ -139,8 +162,8 @@ class Score:
         self.set_sound()
         self.show()
 
-    def update(self, delay):
-        self.score = delay // 10
+    def update(self, loop):
+        self.score = loop // 10
         self.check_score()
         self.check_sound()
 
@@ -174,7 +197,7 @@ class Game:
         self.is_over = False
         self.set_labels()
         self.set_sound()
-        self.spawn_cactus()
+        self.spawn_obstacle()
 
     def set_labels(self):
         big_font = pygame.font.SysFont('monospace', 24, bold=True)
@@ -193,13 +216,14 @@ class Game:
         self.is_playing = False
         self.is_over = True
 
-    def can_spawn(self, delay):
-        return delay % 100 == 0
+    def can_spawn(self, loop):
+        return loop % 100 == 0
 
     def spawn_cactus(self):
         #list with cactus
         if len(self.obstacles) > 0:
             prev_cactus = self.obstacles[-1]
+            #calculate distance between cactus
             x = random.randint(prev_cactus.x + self.player.width + self.obstacle_dist, 
                 WIDTH + prev_cactus.x + self.player.width + self.obstacle_dist)
 
@@ -210,6 +234,33 @@ class Game:
         #create new cactus
         cactus = Cactus(x)
         self.obstacles.append(cactus)
+
+    def spawn_obstacle(self):
+        #list with obstacles
+        if len(self.obstacles) > 0:
+            prev_obstacle = self.obstacles[-1]
+            #calculate distance between obstacles
+            x = random.randint(prev_obstacle.x + self.player.width + self.obstacle_dist, 
+                WIDTH + prev_obstacle.x + self.player.width + self.obstacle_dist)
+
+        #empty
+        else:
+            x = random.randint(WIDTH + 100, 1000)
+
+        # obstacle_type = random.randint(0,1)
+        obstacle_type = 1
+
+        if obstacle_type == 0:
+            #create new cactus
+            cactus = Cactus(x)
+            self.obstacles.append(cactus)
+        else:
+            #calculate y value for bird
+            y = random.randint(30, HEIGHT - 44 - 50)
+            #create new bird
+            bird = Bird(x, y)
+            self.obstacles.append(bird)
+
 
     def set_sound(self):
         path = os.path.join('assets/sounds/die.wav')
@@ -223,12 +274,12 @@ def main():
     game = Game()
     clock = pygame.time.Clock()
     player = game.player
-    delay = 0
+    loop = 0
 
     while True:
         if game.is_playing:
-            #delay update
-            delay += 1
+            #loop update
+            loop += 1
 
             #bg
             for bg in game.bg:
@@ -236,22 +287,22 @@ def main():
                 bg.show()
             
             #player
-            player.update(delay)
+            player.update(loop)
             player.show()
 
-            #cactus
-            if game.can_spawn(delay):
-                game.spawn_cactus()
+            #obstacles
+            if game.can_spawn(loop):
+                game.spawn_obstacle()
 
-            for cactus in game.obstacles:
-                cactus.update(-game.speed)
-                cactus.show()
+            for obstacle in game.obstacles:
+                obstacle.update(-game.speed)
+                obstacle.show()
 
                 #collision
-                if game.collision.between(player, cactus):
+                if game.collision.between(player, obstacle):
                     game.over()
 
-            game.score.update(delay)
+            game.score.update(loop)
             game.score.show()
 
         for event in pygame.event.get():
@@ -263,7 +314,7 @@ def main():
                     if not game.is_playing and game.is_over:
                         game.restart()
                         player = game.player
-                        delay = 0
+                        loop = 0
                     elif not game.is_playing and not game.is_over:
                         game.start()
                     
