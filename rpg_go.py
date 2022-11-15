@@ -12,6 +12,35 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('RPG GO!')
 
+class Battle:
+    def __init__(self):
+        self.width = WIDTH*0.75
+        self.height = HEIGHT*0.75
+        self.set_texture()
+        self.set_rect()
+        self.set_sound()
+
+    def start(self):
+        self.show()
+
+    def update(self, loop):
+        self.set_texture()
+
+    def show(self):
+        screen.blit(self.texture, (0,0))
+
+    def set_texture(self):
+        path = os.path.join(f'assets/images/battle_bg.png')
+        self.texture = pygame.image.load(path).convert_alpha()
+        self.texture = pygame.transform.scale(self.texture, (self.width, self.height))
+
+    def set_rect(self):
+        self.rect = pygame.Rect(0, 0, self.width, self.height)
+
+    def set_sound(self):
+        path = os.path.join('assets/sounds/jump.wav')
+        self.sound = pygame.mixer.Sound(path)
+
 class Player:
     def __init__(self):
         self.width = 44.0
@@ -57,11 +86,11 @@ class Player:
 
     def set_texture(self):
         path = os.path.join(f'assets/images/dino{self.texture_num}.png')
-        self.texture = pygame.image.load(path)
+        self.texture = pygame.image.load(path).convert_alpha()
         self.texture = pygame.transform.scale(self.texture, (self.width, self.height))
 
     def set_rect(self):
-        self.rect = pygame.Rect(self.x, self.y, self.width/2, self.height/2)
+        self.rect = pygame.Rect(self.x, self.y, self.width*0.75, self.height*0.75)
 
     def set_sound(self):
         path = os.path.join('assets/sounds/jump.wav')
@@ -77,38 +106,44 @@ class Player:
         self.jumping = False
         self.on_ground = True
 
-class Cactus:
-    def __init__(self, x):
-        self.width = 34
-        self.height = 44
-        self.x = x
-        self.y = 80
-        self.set_texture()
-        self.set_rect()
-        self.show()
-    
-    def update(self, dx):
-        self.x += dx
-        self.rect.x = self.x
+class Obstacle:
+    def __init__(self):
+        # cactus values
+        self.cactus_width = 34
+        self.cactus_height = 44
+        self.cactus_y = 80
+        self.set_cactus_texture()
 
-    def show(self):
-        screen.blit(self.texture, (self.x, self.y))
+        # bird values
+        self.bird_width = 34
+        self.bird_height = 24
+        self.set_bird_texture()
 
-    def set_texture(self):
+    def create_cactus(self, x):
+        new_cactus = Cactus(self.cactus_texture, x, self.cactus_y)
+        return new_cactus
+
+    def create_bird(self, x, y):
+        new_bird = Bird(self.bird_texture, x, y)
+        return new_bird
+
+    def set_cactus_texture(self):
         path = os.path.join('assets/images/cactus.png')
-        self.texture = pygame.image.load(path)
-        self.texture = pygame.transform.scale(self.texture, (self.width, self.height))
+        self.cactus_texture = pygame.image.load(path).convert_alpha()
+        self.cactus_texture = pygame.transform.scale(
+            self.cactus_texture, (self.cactus_width, self.cactus_height))
 
-    def set_rect(self):
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+    def set_bird_texture(self):
+        path = os.path.join('assets/images/bird.png')
+        self.bird_texture = pygame.image.load(path).convert_alpha()
+        self.bird_texture = pygame.transform.scale(
+            self.bird_texture, (self.bird_width, self.bird_height))
 
-class Bird:
-    def __init__(self, x, y):
-        self.width = 34
-        self.height = 24
+class Cactus:
+    def __init__(self, texture, x, y):
+        self.texture = texture
         self.x = x
         self.y = y
-        self.set_texture()
         self.set_rect()
         self.show()
     
@@ -119,13 +154,27 @@ class Bird:
     def show(self):
         screen.blit(self.texture, (self.x, self.y))
 
-    def set_texture(self):
-        path = os.path.join('assets/images/bird.png')
-        self.texture = pygame.image.load(path)
-        self.texture = pygame.transform.scale(self.texture, (self.width, self.height))
+    def set_rect(self):
+        self.rect = pygame.Rect(
+            self.x, self.y, self.texture.get_width(), self.texture.get_height())
+
+class Bird:
+    def __init__(self, texture, x, y):
+        self.x = x
+        self.y = y
+        self.texture = texture
+        self.set_rect()
+        self.show()
+    
+    def update(self, dx):
+        self.x += dx
+        self.rect.x = self.x
+
+    def show(self):
+        screen.blit(self.texture, (self.x, self.y))
 
     def set_rect(self):
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.rect = pygame.Rect(self.x, self.y, self.texture.get_width(), self.texture.get_height())
 
 class Collision:
     def between(self, obj1, obj2):
@@ -150,7 +199,7 @@ class BG:
 
     def set_texture(self):
         path = os.path.join('assets/images/bg.png')
-        self.texture = pygame.image.load(path)
+        self.texture = pygame.image.load(path).convert()
         self.texture = pygame.transform.scale(self.texture, (self.width, self.height))
 
 class Score:
@@ -188,6 +237,7 @@ class Game:
     def __init__(self, high_score = 0):
         self.bg = [BG(0), BG(WIDTH)]
         self.player = Player()
+        self.obstacle = Obstacle()
         self.obstacles = []
         self.obstacle_dist = 84
         self.collision = Collision()
@@ -219,22 +269,6 @@ class Game:
     def can_spawn(self, loop):
         return loop % 100 == 0
 
-    def spawn_cactus(self):
-        #list with cactus
-        if len(self.obstacles) > 0:
-            prev_cactus = self.obstacles[-1]
-            #calculate distance between cactus
-            x = random.randint(prev_cactus.x + self.player.width + self.obstacle_dist, 
-                WIDTH + prev_cactus.x + self.player.width + self.obstacle_dist)
-
-        #empty
-        else:
-            x = random.randint(WIDTH + 100, 1000)
-
-        #create new cactus
-        cactus = Cactus(x)
-        self.obstacles.append(cactus)
-
     def spawn_obstacle(self):
         #list with obstacles
         if len(self.obstacles) > 0:
@@ -252,14 +286,14 @@ class Game:
 
         if obstacle_type == 0:
             #create new cactus
-            cactus = Cactus(x)
-            self.obstacles.append(cactus)
+            new_cactus = self.obstacle.create_cactus(x)
+            self.obstacles.append(new_cactus)
         else:
-            #calculate y value for bird
+            #chose y value for bird
             y = random.choice([40, 90])
             #create new bird
-            bird = Bird(x, y)
-            self.obstacles.append(bird)
+            new_bird = self.obstacle.create_bird(x, y)
+            self.obstacles.append(new_bird)
 
 
     def set_sound(self):
