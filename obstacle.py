@@ -1,41 +1,39 @@
 import pygame, os
 
 class Obstacle:
-    def __init__(self):
+    def __init__(self, screen_width, screen_height):
         # cactus values
-        self.cactus_width = 34
-        self.cactus_height = 44
-        self.cactus_y = 80
-        self.set_cactus_texture()
+        self.cactus_width = round(screen_width/18)
+        self.cactus_height = round(screen_height/4)
+        self.cactus_y = round(screen_height/1.75)
+        self.set_cactus_surface()
 
         # bird values
-        self.bird_width = 34
-        self.bird_height = 24
-        self.set_bird_texture()
+        self.bird_width = round(screen_width/18)
+        self.bird_height = round(screen_height/10)
+        self.set_bird_surface()
 
     def create_cactus(self, x):
-        new_cactus = Cactus(self.cactus_texture, x, self.cactus_y)
+        new_cactus = Cactus(self.cactus_surface, x, self.cactus_y)
         return new_cactus
 
     def create_bird(self, x, y):
-        new_bird = Bird(self.bird_texture, x, y)
+        new_bird = Bird(self.bird_surface, x, y)
         return new_bird
 
-    def set_cactus_texture(self):
+    def set_cactus_surface(self):
         path = os.path.join('assets/images/cactus.png')
-        self.cactus_texture = pygame.image.load(path).convert_alpha()
-        self.cactus_texture = pygame.transform.scale(
-            self.cactus_texture, (self.cactus_width, self.cactus_height))
+        image = pygame.image.load(path).convert_alpha()
+        self.cactus_surface = pygame.transform.scale(image, (self.cactus_width, self.cactus_height))
 
-    def set_bird_texture(self):
+    def set_bird_surface(self):
         path = os.path.join('assets/images/bird.png')
-        self.bird_texture = pygame.image.load(path).convert_alpha()
-        self.bird_texture = pygame.transform.scale(
-            self.bird_texture, (self.bird_width, self.bird_height))
+        image = pygame.image.load(path).convert_alpha()
+        self.bird_surface = pygame.transform.scale(image, (self.bird_width, self.bird_height))
 
 class Cactus:
-    def __init__(self, texture, x, y):
-        self.texture = texture
+    def __init__(self, surface, x, y):
+        self.surface = surface
         self.x = x
         self.y = y
         self.set_rect()
@@ -45,17 +43,17 @@ class Cactus:
         self.rect.x = self.x
 
     def show(self, screen):
-        screen.blit(self.texture, (self.x, self.y))
+        screen.blit(self.surface, (self.x, self.y))
 
     def set_rect(self):
         self.rect = pygame.Rect(
-            self.x, self.y, self.texture.get_width(), self.texture.get_height())
+            self.x, self.y, self.surface.get_width(), self.surface.get_height())
 
 class Bird:
-    def __init__(self, texture, x, y):
+    def __init__(self, surface, x, y):
         self.x = x
         self.y = y
-        self.texture = texture
+        self.surface = surface
         self.set_rect()
     
     def update(self, dx):
@@ -63,7 +61,7 @@ class Bird:
         self.rect.x = self.x
 
     def show(self, screen):
-        screen.blit(self.texture, (self.x, self.y))
+        screen.blit(self.surface, (self.x, self.y))
 
     def set_rect(self):
-        self.rect = pygame.Rect(self.x, self.y, self.texture.get_width(), self.texture.get_height())
+        self.rect = pygame.Rect(self.x, self.y, self.surface.get_width(), self.surface.get_height())

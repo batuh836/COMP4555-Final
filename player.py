@@ -1,20 +1,21 @@
 import pygame, os, math
 
 class Player:
-    def __init__(self):
-        self.width = 44.0
-        self.height = 44.0
-        self.x = 10.0
-        self.y = 80.0
-        self.ground_height = 80.0
+    def __init__(self, screen_width, screen_height):
+        self.width = round(screen_width/15)
+        self.height = self.width
+        self.x = round(screen_width/60)
+        self.y = round(screen_height/1.5)
+        self.ground_height = round(screen_height/1.5)
         self.jump_time = -1.0
         self.jump_duration = 1.0
         self.jump_interval = 0.05
-        self.jump_height = 75.0
+        self.jump_height = round(screen_height/2)
         self.on_ground = True
         self.jumping = False
-        self.texture_num = 0
-        self.set_texture()
+        self.surface_num = 0
+        self.surfaces = []
+        self.set_surface()
         self.set_rect()
         self.set_sound()
 
@@ -36,19 +37,21 @@ class Player:
                 self.stop()
         #walking 
         elif self.on_ground and loop % 4 == 0:
-            self.texture_num = (self.texture_num + 1) % 3
-            self.set_texture()
+            self.surface_num = (self.surface_num + 1) % 3
+            self.surface = self.surfaces[self.surface_num]
 
     def show(self, screen):
-        screen.blit(self.texture, (self.x, self.y))
+        screen.blit(self.surface, (self.x, self.y))
 
-    def set_texture(self):
-        path = os.path.join(f'assets/images/dino{self.texture_num}.png')
-        self.texture = pygame.image.load(path).convert_alpha()
-        self.texture = pygame.transform.scale(self.texture, (self.width, self.height))
+    def set_surface(self):
+        for i in range(3):
+            path = os.path.join(f'assets/images/dino{i}.png')
+            image = pygame.image.load(path).convert_alpha()
+            self.surfaces.append(pygame.transform.scale(image, (self.width, self.height)))
+        self.surface = self.surfaces[0]
 
     def set_rect(self):
-        self.rect = pygame.Rect(self.x, self.y, self.width*0.6, self.height*0.6)
+        self.rect = pygame.Rect(self.x, self.y, self.width*0.5, self.height*0.5)
 
     def set_sound(self):
         path = os.path.join('assets/sounds/jump.wav')

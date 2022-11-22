@@ -20,6 +20,7 @@ class Score:
     def set_sound(self):
         path = os.path.join('assets/sounds/point.wav')
         self.sound = pygame.mixer.Sound(path)
+        self.sound.set_volume(0.25)
 
     def show(self, screen):
         self.label = self.font.render(f"HI {self.high_score} {self.score}", 1, self.color)

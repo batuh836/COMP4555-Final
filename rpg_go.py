@@ -1,4 +1,3 @@
-import math
 import sys
 import pygame
 import os
@@ -9,21 +8,23 @@ from battle import *
 from score import *
 from bg import *
 
-WIDTH = 623
-HEIGHT = 150
-
+# pygame
 pygame.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('RPG GO!')
+
+# screen
+WIDTH = 750
+HEIGHT = 250
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 class Game:
     def __init__(self, high_score = 0):
         # initialize objects
         self.bg = [BG(0, WIDTH, HEIGHT), BG(WIDTH, WIDTH, HEIGHT)]
-        self.player = Player()
+        self.player = Player(WIDTH, HEIGHT)
         self.score = Score(high_score)
-        self.obstacle = Obstacle()
+        self.obstacle = Obstacle(WIDTH, HEIGHT)
         self.battle = Battle(WIDTH, HEIGHT)
 
         # show objects
@@ -32,10 +33,11 @@ class Game:
         self.score.show(screen)
 
         self.obstacles = []
-        self.obstacle_dist = 84
-        self.speed = 4
+        self.obstacle_dist = round(WIDTH/10)
+        self.speed = 5
         self.is_playing = False
         self.is_over = False
+        self.in_battle = False
         self.set_labels()
         self.set_sound()
         self.spawn_obstacle()
@@ -50,6 +52,16 @@ class Game:
         self.is_playing = True
         self.is_over = False
 
+    def start_battle(self):
+        self.is_playing = False
+        self.in_battle = True
+        self.battle.start(screen)
+
+    def end_battle(self):
+        self.is_playing = True
+        self.in_battle = False
+        # self.battle.end(screen)
+
     def over(self):
         self.sound.play()
         screen.blit(self.big_label, (WIDTH // 2 - self.big_label.get_width() // 2, HEIGHT // 4))
@@ -58,19 +70,19 @@ class Game:
         self.is_over = True
 
     def can_spawn(self, loop):
-        return loop % 100 == 0
+        return loop % 50 == 0
 
     def spawn_obstacle(self):
         #list with obstacles
         if len(self.obstacles) > 0:
             prev_obstacle = self.obstacles[-1]
             #calculate distance between obstacles
-            x = random.randint(prev_obstacle.x + self.player.width + self.obstacle_dist, 
-                WIDTH + prev_obstacle.x + self.player.width + self.obstacle_dist)
+            dist = prev_obstacle.x + self.player.width + self.obstacle_dist
+            x = random.randint(dist, round(WIDTH/2 + dist))
 
         #empty
         else:
-            x = random.randint(WIDTH + 100, 1000)
+            x = random.randint(WIDTH, round(WIDTH*1.5))
 
         obstacle_type = random.choice([0,1])
 
@@ -80,7 +92,7 @@ class Game:
             self.obstacles.append(new_cactus)
         else:
             #chose y value for bird
-            y = random.choice([40, 90])
+            y = random.choice([HEIGHT/2.5, HEIGHT/1.5])
             #create new bird
             new_bird = self.obstacle.create_bird(x, y)
             self.obstacles.append(new_bird)
@@ -88,11 +100,9 @@ class Game:
     def collision(self, obj1, obj2):
         if obj1.rect.colliderect(obj2.rect):
             if isinstance(obj2, Bird):
-                self.battle.start()
-                print("collided with bird")
+                self.start_battle()
             elif isinstance(obj2, Cactus):
-                print("collided with cactus")
-            return True
+                self.over()
 
     def set_sound(self):
         path = os.path.join('assets/sounds/die.wav')
@@ -109,7 +119,10 @@ def main():
     loop = 0
 
     while True:
-        if game.is_playing:
+        if game.in_battle:
+            game.battle.show(screen)
+            
+        elif game.is_playing:
             #loop update
             loop += 1
 
@@ -127,12 +140,14 @@ def main():
                 game.spawn_obstacle()
 
             for obstacle in game.obstacles:
-                obstacle.update(-game.speed)
-                obstacle.show(screen)
-
-                #collision
-                if game.collision(player, obstacle):
-                    game.over()
+                # remove obstacle if off screen
+                if obstacle.x < -50:
+                    game.obstacles.remove(obstacle)
+                    print(len(game.obstacles))
+                else:
+                    obstacle.update(-game.speed)
+                    obstacle.show(screen)
+                    game.collision(player, obstacle)
 
             game.score.update(loop)
             game.score.show(screen)
