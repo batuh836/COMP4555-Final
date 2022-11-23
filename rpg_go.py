@@ -26,6 +26,7 @@ class Game:
         self.score = Score(high_score)
         self.obstacle = Obstacle(WIDTH, HEIGHT)
         self.battle = Battle(WIDTH, HEIGHT)
+        self.loop = 0
 
         # show objects
         self.bg[0].show(screen)
@@ -102,7 +103,8 @@ class Game:
             if isinstance(obj2, Bird):
                 self.start_battle()
             elif isinstance(obj2, Cactus):
-                self.over()
+                # self.over()
+                pass
 
     def set_sound(self):
         path = os.path.join('assets/sounds/die.wav')
@@ -111,12 +113,21 @@ class Game:
     def restart(self):
         self.__init__(self.score.high_score)
 
+    def game_controls(self, keys):
+        if keys[pygame.K_SPACE]:
+            if not self.is_playing and self.is_over:
+                self.restart()
+            elif not self.is_playing and not self.is_over:
+                self.start()
+            
+            if self.is_playing and not self.is_over and self.player.on_ground:
+                self.player.jump()
+
 def main():
     #objects
     game = Game()
     clock = pygame.time.Clock()
     player = game.player
-    loop = 0
 
     while True:
         if game.in_battle:
@@ -124,7 +135,7 @@ def main():
             
         elif game.is_playing:
             #loop update
-            loop += 1
+            game.loop += 1
 
             #bg
             for bg in game.bg:
@@ -132,11 +143,11 @@ def main():
                 bg.show(screen)
             
             #player
-            player.update(loop)
+            player.update(game.loop)
             player.show(screen)
 
             #obstacles
-            if game.can_spawn(loop):
+            if game.can_spawn(game.loop):
                 game.spawn_obstacle()
 
             for obstacle in game.obstacles:
@@ -149,24 +160,20 @@ def main():
                     obstacle.show(screen)
                     game.collision(player, obstacle)
 
-            game.score.update(loop)
+            game.score.update(game.loop)
             game.score.show(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    if not game.is_playing and game.is_over:
-                        game.restart()
-                        player = game.player
-                        loop = 0
-                    elif not game.is_playing and not game.is_over:
-                        game.start()
-                    
-                    if game.is_playing and not game.is_over and player.on_ground:
-                        player.jump()
+            
+            # controls
+            keys = pygame.key.get_pressed()
+            if game.in_battle:
+                game.battle.battle_controls(keys)
+            else:
+                game.game_controls(keys)
 
         clock.tick(60)
         pygame.display.update()
