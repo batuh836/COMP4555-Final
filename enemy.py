@@ -8,6 +8,9 @@ class Enemy:
         self.set_rect()
         self.set_sound()
 
+    def is_alive(self):
+        return self.health > 0
+
     def update(self):
         pass
 

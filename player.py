@@ -6,6 +6,8 @@ class Player:
         self.height = self.width
         self.x = round(screen_width/60)
         self.y = round(screen_height/1.5)
+
+        self.health = 10
         self.ground_height = round(screen_height/1.5)
         self.jump_time = -1.0
         self.jump_duration = 1.0
@@ -15,6 +17,7 @@ class Player:
         self.jumping = False
         self.surface_num = 0
         self.surfaces = []
+
         self.set_surface()
         self.set_rect()
         self.set_sound()
@@ -57,6 +60,9 @@ class Player:
         path = os.path.join('assets/sounds/jump.wav')
         self.sound = pygame.mixer.Sound(path)
 
+    def is_alive(self):
+        return self.health > 0
+    
     def jump(self):
         self.sound.play()
         self.jump_time = -1.0
@@ -66,7 +72,3 @@ class Player:
     def stop(self):
         self.jumping = False
         self.on_ground = True
-
-class Health:
-    def __init__(self):
-        self.health = 100

@@ -7,6 +7,7 @@ from player import *
 from battle import *
 from score import *
 from bg import *
+from status import *
 
 # pygame
 pygame.init()
@@ -24,14 +25,16 @@ class Game:
         self.bg = [BG(0, WIDTH, HEIGHT), BG(WIDTH, WIDTH, HEIGHT)]
         self.player = Player(WIDTH, HEIGHT)
         self.score = Score(high_score)
+        self.status = Status()
         self.obstacle = Obstacle(WIDTH, HEIGHT)
-        self.battle = Battle(WIDTH, HEIGHT)
+        self.battle = Battle(self, WIDTH, HEIGHT)
         self.loop = 0
 
         # show objects
         self.bg[0].show(screen)
         self.player.show(screen)
         self.score.show(screen)
+        self.status.show(screen, self.player.health)
 
         self.obstacles = []
         self.obstacle_dist = round(WIDTH/10)
@@ -61,7 +64,6 @@ class Game:
     def end_battle(self):
         self.is_playing = True
         self.in_battle = False
-        # self.battle.end(screen)
 
     def over(self):
         self.sound.play()
@@ -98,13 +100,14 @@ class Game:
             new_bird = self.obstacle.create_bird(x, y)
             self.obstacles.append(new_bird)
 
-    def collision(self, obj1, obj2):
-        if obj1.rect.colliderect(obj2.rect):
-            if isinstance(obj2, Bird):
+    def collision(self, player, obstacle):
+        if player.rect.colliderect(obstacle.rect):
+            if isinstance(obstacle, Bird):
+                self.obstacles.clear
                 self.start_battle()
-            elif isinstance(obj2, Cactus):
-                # self.over()
-                pass
+            elif isinstance(obstacle, Cactus):
+                self.obstacles.remove(obstacle)
+                self.player.health -= 1
 
     def set_sound(self):
         path = os.path.join('assets/sounds/die.wav')
@@ -127,7 +130,6 @@ def main():
     #objects
     game = Game()
     clock = pygame.time.Clock()
-    player = game.player
 
     while True:
         if game.in_battle:
@@ -143,8 +145,11 @@ def main():
                 bg.show(screen)
             
             #player
-            player.update(game.loop)
-            player.show(screen)
+            if game.player.is_alive():
+                game.player.update(game.loop)
+                game.player.show(screen)
+            else:
+                game.over()
 
             #obstacles
             if game.can_spawn(game.loop):
@@ -158,8 +163,10 @@ def main():
                 else:
                     obstacle.update(-game.speed)
                     obstacle.show(screen)
-                    game.collision(player, obstacle)
-
+                    game.collision(game.player, obstacle)
+            
+            # ui
+            game.status.show(screen, game.player.health)
             game.score.update(game.loop)
             game.score.show(screen)
 
