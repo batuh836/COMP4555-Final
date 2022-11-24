@@ -6,6 +6,8 @@ class Player:
         self.height = self.width
         self.x = round(screen_width/60)
         self.y = round(screen_height/1.5)
+        self.font = pygame.font.SysFont('monospace', 18)
+        self.color = (0, 0, 0)
 
         self.health = 10
         self.ground_height = round(screen_height/1.5)
@@ -45,6 +47,15 @@ class Player:
 
     def show(self, screen):
         screen.blit(self.surface, (self.x, self.y))
+
+    def show_health(self, screen):
+        health_bar = ""
+        for _ in range(self.health):
+            health_bar += "|"
+
+        label = self.font.render(f"HP {health_bar}", 1, self.color)
+        location = (10, screen.get_height() - label.get_height() - 10)
+        screen.blit(label, location)
 
     def set_surface(self):
         for i in range(3):

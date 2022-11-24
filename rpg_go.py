@@ -7,7 +7,6 @@ from player import *
 from battle import *
 from score import *
 from bg import *
-from status import *
 
 # pygame
 pygame.init()
@@ -25,7 +24,6 @@ class Game:
         self.bg = [BG(0, WIDTH, HEIGHT), BG(WIDTH, WIDTH, HEIGHT)]
         self.player = Player(WIDTH, HEIGHT)
         self.score = Score(high_score)
-        self.status = Status()
         self.obstacle = Obstacle(WIDTH, HEIGHT)
         self.battle = Battle(self, WIDTH, HEIGHT)
         self.loop = 0
@@ -34,7 +32,6 @@ class Game:
         self.bg[0].show(screen)
         self.player.show(screen)
         self.score.show(screen)
-        self.status.show(screen, self.player.health)
 
         self.obstacles = []
         self.obstacle_dist = round(WIDTH/10)
@@ -103,7 +100,7 @@ class Game:
     def collision(self, player, obstacle):
         if player.rect.colliderect(obstacle.rect):
             if isinstance(obstacle, Bird):
-                self.obstacles.clear
+                self.obstacles.clear()
                 self.start_battle()
             elif isinstance(obstacle, Cactus):
                 self.obstacles.remove(obstacle)
@@ -116,7 +113,8 @@ class Game:
     def restart(self):
         self.__init__(self.score.high_score)
 
-    def game_controls(self, keys):
+    def game_controls(self):
+        keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
             if not self.is_playing and self.is_over:
                 self.restart()
@@ -132,12 +130,17 @@ def main():
     clock = pygame.time.Clock()
 
     while True:
+        #loop update
+        game.loop += 1
+
         if game.in_battle:
+            game.battle.update(game.loop)
             game.battle.show(screen)
             
         elif game.is_playing:
-            #loop update
-            game.loop += 1
+            # increase speed
+            if game.loop % 1000 == 0:
+                game.speed += 1
 
             #bg
             for bg in game.bg:
@@ -159,16 +162,15 @@ def main():
                 # remove obstacle if off screen
                 if obstacle.x < -50:
                     game.obstacles.remove(obstacle)
-                    print(len(game.obstacles))
                 else:
                     obstacle.update(-game.speed)
                     obstacle.show(screen)
                     game.collision(game.player, obstacle)
             
-            # ui
-            game.status.show(screen, game.player.health)
-            game.score.update(game.loop)
-            game.score.show(screen)
+        # ui
+        game.score.update(game.loop)
+        game.score.show(screen)
+        game.player.show_health(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -176,11 +178,10 @@ def main():
                 sys.exit()
             
             # controls
-            keys = pygame.key.get_pressed()
             if game.in_battle:
-                game.battle.battle_controls(keys)
+                game.battle.battle_controls(event)
             else:
-                game.game_controls(keys)
+                game.game_controls()
 
         clock.tick(60)
         pygame.display.update()

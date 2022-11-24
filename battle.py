@@ -6,18 +6,18 @@ class Battle:
         self.game = game
         self.width = round(screen_width*0.9)
         self.height = round(screen_height*0.75)
-        self.x = screen_width/2 - self.width/2
-        self.y = screen_height/2 - self.height/2
+        self.x = screen_width*0.5 - self.width*0.5
+        self.y = screen_height*0.5 - self.height*0.5
 
         # surface sizes
         self.target_size = (50, 50)
 
         # enemy positions
-        enemy_pos_center = (self.width/1.5, self.height/2)
-        enemy_pos_top = (self.width/1.5, self.height/3.5)
-        enemy_pos_bottom = (self.width/1.5, self.height/1.5)
-        enemy_pos_left = (self.width/2, self.height/2)
-        enemy_pos_right = (self.width/1.25, self.height/2)
+        enemy_pos_center = (self.width*0.65, self.height*0.5)
+        enemy_pos_top = (self.width*0.65, self.height*0.2)
+        enemy_pos_bottom = (self.width*0.65, self.height*0.8)
+        enemy_pos_left = (self.width*0.5, self.height*0.5)
+        enemy_pos_right = (self.width*0.8, self.height*0.5)
         self.enemy_positions = [enemy_pos_center, 
                                 enemy_pos_top, 
                                 enemy_pos_bottom, 
@@ -25,7 +25,7 @@ class Battle:
                                 enemy_pos_right]
 
         # target positions
-        self.enemy_current_pos = None
+        self.enemy_current_pos = self.enemy_positions[0]
         self.player_target_pos = self.enemy_positions[0]
 
         self.set_surfaces()
@@ -34,26 +34,34 @@ class Battle:
 
     def start(self, screen):
         self.end_battle_timer = 0
+        self.player_target_pos = self.enemy_positions[0]
         self.enemy = Enemy()
         self.set_enemy_pos()
         self.show(screen)
 
     def end(self):
         self.end_battle_timer += 1
-        if self.end_battle_timer == 30:
+        if self.end_battle_timer == 50:
             self.game.end_battle()
 
     def set_enemy_pos(self):
-        random_enemy_pos = random.randint(0, 4)
-        self.enemy_current_pos = self.enemy_positions[random_enemy_pos]
+        random_enemy_pos = random.randint(0, 3)
+        new_enemy_positions = self.enemy_positions.copy()
+        new_enemy_positions.remove(self.enemy_current_pos)
+        self.enemy_current_pos = new_enemy_positions[random_enemy_pos]
+
+    def update(self, loop):
+        if loop % 50 == 0:
+            self.set_enemy_pos()
 
     def show(self, screen):
         screen.blit(self.bg, (self.x, self.y))
         if self.enemy.is_alive():
+            self.enemy.show_health(screen)
             screen.blit(self.enemy.surface, self.enemy_current_pos)
+            screen.blit(self.target, self.player_target_pos)
         else:
             self.end()
-        screen.blit(self.target, self.player_target_pos)
 
     def set_surfaces(self):
         bg_path = os.path.join('assets/images/battle_bg.png')
@@ -94,7 +102,9 @@ class Battle:
         path = os.path.join('assets/sounds/jump.wav')
         self.sound = pygame.mixer.Sound(path)
 
-    def battle_controls(self, keys):
+    def battle_controls(self, event):
+        keys = pygame.key.get_pressed()
         self.set_target(keys)
-        if keys[pygame.K_SPACE]:
-            self.fire()
+        if event.type == pygame.KEYDOWN:
+            if keys[pygame.K_SPACE]:
+                self.fire()

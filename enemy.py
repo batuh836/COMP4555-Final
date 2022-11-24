@@ -3,7 +3,9 @@ import pygame, os, math
 class Enemy:
     def __init__(self):
         self.size = (40, 30)
-        self.health = 5
+        self.health = 3
+        self.font = pygame.font.SysFont('monospace', 18)
+        self.color = (0, 0, 0)
         self.set_surface()
         self.set_rect()
         self.set_sound()
@@ -16,6 +18,15 @@ class Enemy:
 
     def show(self, screen, pos):
         screen.blit(self.surface, pos)
+
+    def show_health(self, screen):
+        health_bar = ""
+        for _ in range(self.health):
+            health_bar += "|"
+
+        label = self.font.render(f"{health_bar} BAT", 1, self.color)
+        location = (screen.get_width() * 0.9 - label.get_width(), screen.get_height() * 0.25)
+        screen.blit(label, location)
 
     def set_surface(self):
         bat_path = os.path.join('assets/images/bat.png')
