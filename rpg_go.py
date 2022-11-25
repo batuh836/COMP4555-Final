@@ -7,6 +7,7 @@ from player import *
 from battle import *
 from score import *
 from bg import *
+from bgm import *
 
 # pygame
 pygame.init()
@@ -22,10 +23,12 @@ class Game:
     def __init__(self, high_score = 0):
         # initialize objects
         self.bg = [BG(0, WIDTH, HEIGHT), BG(WIDTH, WIDTH, HEIGHT)]
+        self.fg = [FG(0, WIDTH, HEIGHT), FG(WIDTH, WIDTH, HEIGHT)]
         self.player = Player(WIDTH, HEIGHT)
         self.score = Score(high_score)
         self.obstacle = Obstacle(WIDTH, HEIGHT)
         self.battle = Battle(self, WIDTH, HEIGHT)
+        self.bgm = BGM()
         self.loop = 0
 
         # show objects
@@ -52,6 +55,7 @@ class Game:
     def start(self):
         self.is_playing = True
         self.is_over = False
+        self.bgm.start()
 
     def start_battle(self):
         self.is_playing = False
@@ -142,10 +146,15 @@ def main():
             if game.loop % 1000 == 0:
                 game.speed += 1
 
-            #bg
+            #background
             for bg in game.bg:
                 bg.update(-game.speed)
                 bg.show(screen)
+
+            #foreground
+            for fg in game.fg:
+                fg.update(-game.speed)
+                fg.show(screen)
             
             #player
             if game.player.is_alive():
@@ -166,6 +175,10 @@ def main():
                     obstacle.update(-game.speed)
                     obstacle.show(screen)
                     game.collision(game.player, obstacle)
+
+            # bgm
+            if game.in_battle or game.is_playing:
+                game.bgm.update()
             
         # ui
         game.score.update(game.loop)

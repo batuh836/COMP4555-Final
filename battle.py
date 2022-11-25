@@ -30,9 +30,10 @@ class Battle:
 
         self.set_surfaces()
         self.set_rect()
-        self.set_sound()
+        self.set_sounds()
 
     def start(self, screen):
+        self.fx_channel.play(self.encounter_sound)
         self.end_battle_timer = 0
         self.player_target_pos = self.enemy_positions[0]
         self.enemy = Enemy()
@@ -40,9 +41,11 @@ class Battle:
         self.show(screen)
 
     def end(self):
-        self.end_battle_timer += 1
+        if self.end_battle_timer == 0:
+            self.fx_channel.queue(self.win_sound)
         if self.end_battle_timer == 50:
             self.game.end_battle()
+        self.end_battle_timer += 1
 
     def set_enemy_pos(self):
         random_enemy_pos = random.randint(0, 3)
@@ -77,13 +80,16 @@ class Battle:
         self.rect = pygame.Rect(0, 0, self.width, self.height)
 
     def fire(self):
+        self.fx_channel.stop()
+        self.fx_channel.play(self.fire_sound)
+
         if self.player_target_pos == self.enemy_current_pos:
-            # enemy takes damage
-            # hit sound plays
-            # animation??
+            # graphic
+            self.fx_channel.queue(self.hit_sound)
             self.enemy.health -= 1
         else:
-            # miss sound plays
+            # graphic
+            self.fx_channel.queue(self.miss_sound)
             pass
 
     def set_target(self, keys=[]):
@@ -98,13 +104,32 @@ class Battle:
         else:
             self.player_target_pos = self.enemy_positions[0]
 
-    def set_sound(self):
-        path = os.path.join('assets/sounds/jump.wav')
-        self.sound = pygame.mixer.Sound(path)
+    def set_sounds(self):
+        # set paths
+        encounter_path = os.path.join('assets/sounds/encounter.wav')
+        fire_path = os.path.join('assets/sounds/fire.wav')
+        hit_path = os.path.join('assets/sounds/hit.wav')
+        miss_path = os.path.join('assets/sounds/miss.wav')
+        win_path = os.path.join('assets/sounds/win.wav')
+
+        # set sounds
+        self.fx_channel = pygame.mixer.Channel(1)
+        self.encounter_sound = pygame.mixer.Sound(encounter_path)
+        self.fire_sound = pygame.mixer.Sound(fire_path)
+        self.hit_sound = pygame.mixer.Sound(hit_path)
+        self.miss_sound = pygame.mixer.Sound(miss_path)
+        self.win_sound = pygame.mixer.Sound(win_path)
+
+        # set volume
+        self.encounter_sound.set_volume(0.75)
+        self.fire_sound.set_volume(0.75)
+        self.miss_sound.set_volume(0.75)
+        self.win_sound.set_volume(0.75)
 
     def battle_controls(self, event):
-        keys = pygame.key.get_pressed()
-        self.set_target(keys)
-        if event.type == pygame.KEYDOWN:
-            if keys[pygame.K_SPACE]:
-                self.fire()
+        if self.enemy.is_alive():
+            keys = pygame.key.get_pressed()
+            self.set_target(keys)
+            if event.type == pygame.KEYDOWN:
+                if keys[pygame.K_SPACE]:
+                    self.fire()
