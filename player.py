@@ -6,8 +6,8 @@ class Player:
         self.height = self.width
         self.x = round(screen_width/60)
         self.y = round(screen_height/1.5)
-        self.font = pygame.font.SysFont('monospace', 18)
-        self.color = (0, 0, 0)
+        self.font = pygame.font.SysFont('monospace', 18, bold=True)
+        self.color = (255, 255, 255)
 
         self.health = 10
         self.ground_height = round(screen_height/1.5)
@@ -41,8 +41,8 @@ class Player:
             else: 
                 self.stop()
         #walking 
-        elif self.on_ground and loop % 4 == 0:
-            self.surface_num = (self.surface_num + 1) % 3
+        elif self.on_ground and loop % 6 == 0:
+            self.surface_num = (self.surface_num + 1) % 4
             self.surface = self.surfaces[self.surface_num]
 
     def show(self, screen):
@@ -58,8 +58,8 @@ class Player:
         screen.blit(label, location)
 
     def set_surface(self):
-        for i in range(3):
-            path = os.path.join(f'assets/images/dino{i}.png')
+        for i in range(4):
+            path = os.path.join(f'assets/images/player/player_0{i}.png')
             image = pygame.image.load(path).convert_alpha()
             self.surfaces.append(pygame.transform.scale(image, (self.width, self.height)))
         self.surface = self.surfaces[0]

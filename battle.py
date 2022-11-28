@@ -9,13 +9,10 @@ class Battle:
         self.x = screen_width*0.5 - self.width*0.5
         self.y = screen_height*0.5 - self.height*0.5
 
-        # surface sizes
-        self.target_size = (50, 50)
-
         # enemy positions
         enemy_pos_center = (self.width*0.65, self.height*0.5)
-        enemy_pos_top = (self.width*0.65, self.height*0.2)
-        enemy_pos_bottom = (self.width*0.65, self.height*0.8)
+        enemy_pos_top = (self.width*0.65, self.height*0.25)
+        enemy_pos_bottom = (self.width*0.65, self.height*0.75)
         enemy_pos_left = (self.width*0.5, self.height*0.5)
         enemy_pos_right = (self.width*0.8, self.height*0.5)
         self.enemy_positions = [enemy_pos_center, 
@@ -59,6 +56,7 @@ class Battle:
 
     def show(self, screen):
         screen.blit(self.bg, (self.x, self.y))
+        screen.blit(self.border, (self.x, self.y))
         if self.enemy.is_alive():
             self.enemy.show_health(screen)
             screen.blit(self.enemy.surface, self.enemy_current_pos)
@@ -67,14 +65,19 @@ class Battle:
             self.end()
 
     def set_surfaces(self):
-        bg_path = os.path.join('assets/images/battle_bg.png')
+        border_path = os.path.join('assets/images/battle_border.png')
+        bg_path = os.path.join('assets/images/bg/bg_00.png')
         target_path = os.path.join('assets/images/target.png')
 
+        border_image = pygame.image.load(border_path).convert_alpha()
         bg_image = pygame.image.load(bg_path).convert_alpha()
         target_image = pygame.image.load(target_path).convert_alpha()
 
+        self.border = pygame.transform.scale(border_image, (self.width, self.height))
         self.bg = pygame.transform.scale(bg_image, (self.width, self.height))
-        self.target = pygame.transform.scale(target_image, self.target_size)
+        self.target = pygame.transform.scale(target_image, (50, 50))
+
+        self.overlay_colour = (0, 0, 0, 0)
 
     def set_rect(self):
         self.rect = pygame.Rect(0, 0, self.width, self.height)

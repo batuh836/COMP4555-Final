@@ -4,8 +4,8 @@ class Enemy:
     def __init__(self):
         self.size = (40, 30)
         self.health = 3
-        self.font = pygame.font.SysFont('monospace', 18)
-        self.color = (0, 0, 0)
+        self.font = pygame.font.SysFont('monospace', 18, bold=True)
+        self.color = (255, 255, 255)
         self.set_surface()
         self.set_rect()
         self.set_sound()

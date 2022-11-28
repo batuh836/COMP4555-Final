@@ -2,12 +2,13 @@ import sys
 import pygame
 import os
 import random
-from obstacle import *
+from component import *
 from player import *
 from battle import *
 from score import *
 from bg import *
 from bgm import *
+from effects import *
 
 # pygame
 pygame.init()
@@ -26,19 +27,21 @@ class Game:
         self.fg = [FG(0, WIDTH, HEIGHT), FG(WIDTH, WIDTH, HEIGHT)]
         self.player = Player(WIDTH, HEIGHT)
         self.score = Score(high_score)
-        self.obstacle = Obstacle(WIDTH, HEIGHT)
+        self.obstacle = Component(WIDTH, HEIGHT)
         self.battle = Battle(self, WIDTH, HEIGHT)
         self.bgm = BGM()
+        self.effects = Effects(WIDTH, HEIGHT)
         self.loop = 0
+        self.speed = 5
 
         # show objects
         self.bg[0].show(screen)
         self.player.show(screen)
         self.score.show(screen)
 
-        self.obstacles = []
-        self.obstacle_dist = round(WIDTH/10)
-        self.speed = 5
+        self.components = []
+        self.component_dist = round(WIDTH/10)
+        self.vfxs = []
         self.is_playing = False
         self.is_over = False
         self.in_battle = False
@@ -49,8 +52,8 @@ class Game:
     def set_labels(self):
         big_font = pygame.font.SysFont('monospace', 24, bold=True)
         small_font = pygame.font.SysFont('monospace', 18)
-        self.big_label = big_font.render(f'G A M E O V E R', 1, (0, 0, 0))
-        self.small_label = small_font.render(f'Press Space to Restart', 1, (0, 0, 0))
+        self.big_label = big_font.render(f'G A M E O V E R', 1, (255, 255, 255))
+        self.small_label = small_font.render(f'Press Space to Restart', 1, (255, 255, 255))
     
     def start(self):
         self.is_playing = True
@@ -77,38 +80,50 @@ class Game:
         return loop % 50 == 0
 
     def spawn_obstacle(self):
-        #list with obstacles
-        if len(self.obstacles) > 0:
-            prev_obstacle = self.obstacles[-1]
+        #list with components
+        if len(self.components) > 0:
+            prev_obstacle = self.components[-1]
             #calculate distance between obstacles
-            dist = prev_obstacle.x + self.player.width + self.obstacle_dist
+            dist = prev_obstacle.x + self.player.width + self.component_dist
             x = random.randint(dist, round(WIDTH/2 + dist))
 
         #empty
         else:
             x = random.randint(WIDTH, round(WIDTH*1.5))
 
-        obstacle_type = random.choice([0,1])
+        obstacle_type = random.choice([0, 1, 2])
+        # obstacle_type = 2
 
         if obstacle_type == 0:
-            #create new cactus
-            new_cactus = self.obstacle.create_cactus(x)
-            self.obstacles.append(new_cactus)
-        else:
-            #chose y value for bird
+            #create new obstacle
+            new_cactus = self.obstacle.create_obstacle(x)
+            self.components.append(new_cactus)
+        elif obstacle_type == 1:
+            #chose y value for enemy
             y = random.choice([HEIGHT/2.5, HEIGHT/1.5])
-            #create new bird
-            new_bird = self.obstacle.create_bird(x, y)
-            self.obstacles.append(new_bird)
+            #create new enemy
+            new_enemy = self.obstacle.create_enemy(x, y)
+            self.components.append(new_enemy)
+        elif obstacle_type == 2:
+            #create new item
+            new_item = self.obstacle.create_item(x, HEIGHT)
+            self.components.append(new_item)
 
-    def collision(self, player, obstacle):
-        if player.rect.colliderect(obstacle.rect):
-            if isinstance(obstacle, Bird):
-                self.obstacles.clear()
+    def collision(self, player, component):
+        if player.rect.colliderect(component.rect):
+            if isinstance(component, Enemy):
+                print("collided with enemy")
+                self.components.clear()
                 self.start_battle()
-            elif isinstance(obstacle, Cactus):
-                self.obstacles.remove(obstacle)
+            elif isinstance(component, Obstacle):
+                self.components.remove(component)
                 self.player.health -= 1
+                self.effects.play_sfx("collide")
+            elif isinstance(component, Item):
+                self.components.remove(component)
+                self.player.health += 1
+                self.effects.play_sfx("potion")
+                self.vfxs.append(self.effects.create_vfx("potion"))
 
     def set_sound(self):
         path = os.path.join('assets/sounds/die.wav')
@@ -163,18 +178,18 @@ def main():
             else:
                 game.over()
 
-            #obstacles
+            #components
             if game.can_spawn(game.loop):
                 game.spawn_obstacle()
 
-            for obstacle in game.obstacles:
+            for component in game.components:
                 # remove obstacle if off screen
-                if obstacle.x < -50:
-                    game.obstacles.remove(obstacle)
+                if component.x < -50:
+                    game.components.remove(component)
                 else:
-                    obstacle.update(-game.speed)
-                    obstacle.show(screen)
-                    game.collision(game.player, obstacle)
+                    component.update(-game.speed)
+                    component.show(screen)
+                    game.collision(game.player, component)
 
             # bgm
             if game.in_battle or game.is_playing:
@@ -184,6 +199,14 @@ def main():
         game.score.update(game.loop)
         game.score.show(screen)
         game.player.show_health(screen)
+
+        # vfx
+        for vfx in game.vfxs:
+            if vfx.is_complete():
+                game.vfxs.remove(vfx)
+            else:
+                vfx.update(game.loop)
+                vfx.show(screen, (game.player.x, game.player.y))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
