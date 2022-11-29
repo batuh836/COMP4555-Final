@@ -4,20 +4,34 @@ class BGM:
     def __init__(self):
         self.set_sounds()
 
-    def start(self):
-        self.bgm_channel.play(self.intro_sound)
+    def start_bgm(self):
+        self.bgm_channel.play(self.bgm_intro_sound)
         self.bgm_channel.queue(self.bgm_sound)
 
-    def update(self):
-        self.bgm_channel.queue(self.bgm_sound)
+    def start_boss(self):
+        self.bgm_channel.fadeout(3000)
+        self.bgm_channel.queue(self.boss_intro_sound)
+
+    def update(self, game):
+        if game.in_boss_battle:
+            if not self.bgm_channel.get_busy():
+                self.bgm_channel.queue(self.boss_sound)
+        elif game.is_playing:
+            self.bgm_channel.queue(self.bgm_sound)
 
     def set_sounds(self):
-        intro_path = os.path.join('assets/sounds/bgm/bgm_intro_00.wav')
+        bgm_intro_path = os.path.join('assets/sounds/bgm/bgm_intro_00.wav')
         bgm_path = os.path.join('assets/sounds/bgm/bgm_00.wav')
+        boss_intro_path = os.path.join('assets/sounds/bgm/boss_intro_00.wav')
+        boss_bath = os.path.join('assets/sounds/bgm/boss_00.wav')
 
         self.bgm_channel = pygame.mixer.Channel(0)
-        self.intro_sound = pygame.mixer.Sound(intro_path)
+        self.bgm_intro_sound = pygame.mixer.Sound(bgm_intro_path)
         self.bgm_sound = pygame.mixer.Sound(bgm_path)
+        self.boss_intro_sound = pygame.mixer.Sound(boss_intro_path)
+        self.boss_sound = pygame.mixer.Sound(boss_bath)
 
-        self.intro_sound.set_volume(0.5)
+        self.bgm_intro_sound.set_volume(0.5)
         self.bgm_sound.set_volume(0.5)
+        self.boss_intro_sound.set_volume(0.5)
+        self.boss_sound.set_volume(0.5)

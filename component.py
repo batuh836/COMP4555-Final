@@ -12,7 +12,7 @@ class Component:
         return new_obstacle
 
     def create_enemy(self, x, y):
-        new_enemy = Enemy(self.enemy_surface, x, y)
+        new_enemy = Enemy_Field(self.enemy_surface, x, y)
         return new_enemy
 
     def create_item(self, x, screen_height):
@@ -93,7 +93,7 @@ class Obstacle:
         self.rect = pygame.Rect(
             self.x, self.y, self.surface.get_width(), self.surface.get_height())
 
-class Enemy:
+class Enemy_Field:
     def __init__(self, surface, x, y):
         self.x = x
         self.y = y

@@ -10,6 +10,9 @@ class Player:
         self.color = (255, 255, 255)
 
         self.health = 10
+        self.is_hit = False
+        self.hit_timer = 0
+        self.hit_duration = 5
         self.ground_height = round(screen_height/1.5)
         self.jump_time = -1.0
         self.jump_duration = 1.0
@@ -27,6 +30,7 @@ class Player:
     def update(self, loop):
         #jumping
         if self.jumping:
+            self.surface = self.surfaces[1]
             if self.jump_time <= self.jump_duration:
                 #calculate jump values
                 time_elapsed = self.jump_time/self.jump_duration
@@ -40,6 +44,12 @@ class Player:
                 self.jump_time += self.jump_interval
             else: 
                 self.stop()
+        # collided
+        elif self.is_hit and loop % 6 == 0:
+            self.surface = self.hit_surface
+            self.hit_timer += 1
+            if self.hit_timer >= self.hit_duration:
+                self.is_hit = False
         #walking 
         elif self.on_ground and loop % 6 == 0:
             self.surface_num = (self.surface_num + 1) % 4
@@ -64,6 +74,10 @@ class Player:
             self.surfaces.append(pygame.transform.scale(image, (self.width, self.height)))
         self.surface = self.surfaces[0]
 
+        path = os.path.join(f'assets/images/player/player_hit.png')
+        image = pygame.image.load(path).convert_alpha()
+        self.hit_surface = pygame.transform.scale(image, (self.width, self.height))
+        
     def set_rect(self):
         self.rect = pygame.Rect(self.x, self.y, self.width*0.5, self.height*0.5)
 
@@ -83,3 +97,7 @@ class Player:
     def stop(self):
         self.jumping = False
         self.on_ground = True
+
+    def hit(self):
+        self.hit_timer = 0
+        self.is_hit = True

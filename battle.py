@@ -87,13 +87,11 @@ class Battle:
         self.fx_channel.play(self.fire_sound)
 
         if self.player_target_pos == self.enemy_current_pos:
-            # graphic
-            self.fx_channel.queue(self.hit_sound)
             self.enemy.health -= 1
+            self.fx_channel.queue(self.hit_sound)
+            self.game.vfxs.append(self.game.effects.create_vfx("hit", self.enemy_current_pos))
         else:
-            # graphic
             self.fx_channel.queue(self.miss_sound)
-            pass
 
     def set_target(self, keys=[]):
         if keys[pygame.K_UP]:

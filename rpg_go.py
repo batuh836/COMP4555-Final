@@ -45,6 +45,7 @@ class Game:
         self.is_playing = False
         self.is_over = False
         self.in_battle = False
+        self.in_boss_battle = False
         self.set_labels()
         self.set_sound()
         self.spawn_obstacle()
@@ -58,7 +59,7 @@ class Game:
     def start(self):
         self.is_playing = True
         self.is_over = False
-        self.bgm.start()
+        self.bgm.start_bgm()
 
     def start_battle(self):
         self.is_playing = False
@@ -68,6 +69,16 @@ class Game:
     def end_battle(self):
         self.is_playing = True
         self.in_battle = False
+        if self.in_boss_battle:
+            self.shoot()
+
+    def start_boss(self):
+        self.in_boss_battle = True
+        self.boss = Boss(WIDTH, HEIGHT)
+        self.bgm.start_boss()
+
+    def shoot(self):
+        pass
 
     def over(self):
         self.sound.play()
@@ -111,19 +122,25 @@ class Game:
 
     def collision(self, player, component):
         if player.rect.colliderect(component.rect):
-            if isinstance(component, Enemy):
+            if isinstance(component, Enemy_Field):
                 print("collided with enemy")
                 self.components.clear()
                 self.start_battle()
+
             elif isinstance(component, Obstacle):
                 self.components.remove(component)
                 self.player.health -= 1
+                self.player.hit()
                 self.effects.play_sfx("collide")
+
             elif isinstance(component, Item):
                 self.components.remove(component)
                 self.player.health += 1
                 self.effects.play_sfx("potion")
-                self.vfxs.append(self.effects.create_vfx("potion"))
+                self.vfxs.append(self.effects.create_vfx("potion", (self.player.x, self.player.y)))
+
+            elif isinstance(component, Boss):
+                self.over()
 
     def set_sound(self):
         path = os.path.join('assets/sounds/die.wav')
@@ -158,8 +175,12 @@ def main():
             
         elif game.is_playing:
             # increase speed
-            if game.loop % 1000 == 0:
+            if game.loop % 1000 == 0 and not game.in_boss_battle:
                 game.speed += 1
+
+            # boss timer
+            if game.loop % 500 == 0 and not game.in_boss_battle:
+                game.start_boss()
 
             #background
             for bg in game.bg:
@@ -191,10 +212,16 @@ def main():
                     component.show(screen)
                     game.collision(game.player, component)
 
-            # bgm
-            if game.in_battle or game.is_playing:
-                game.bgm.update()
-            
+            # boss
+            if game.in_boss_battle:
+                game.boss.update(game.loop)
+                game.boss.show(screen)
+                game.boss.show_health(screen)
+                game.collision(game.player, game.boss)
+
+        # bgm
+        game.bgm.update(game)
+
         # ui
         game.score.update(game.loop)
         game.score.show(screen)
@@ -206,7 +233,7 @@ def main():
                 game.vfxs.remove(vfx)
             else:
                 vfx.update(game.loop)
-                vfx.show(screen, (game.player.x, game.player.y))
+                vfx.show(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
