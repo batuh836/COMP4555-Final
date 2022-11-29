@@ -12,8 +12,16 @@ class BGM:
         self.bgm_channel.fadeout(3000)
         self.bgm_channel.queue(self.boss_intro_sound)
 
+    def start_victory(self):
+        self.bgm_channel.fadeout(3000)
+        # queue victory song
+
     def update(self, game):
-        if game.in_boss_battle:
+        if game.is_level_complete:
+            if not self.bgm_channel.get_busy():
+                # queue victory song
+                pass
+        elif game.in_boss_battle:
             if not self.bgm_channel.get_busy():
                 self.bgm_channel.queue(self.boss_sound)
         elif game.is_playing:

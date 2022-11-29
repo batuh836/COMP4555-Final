@@ -19,17 +19,31 @@ class Effects:
         # set paths
         collide_path = os.path.join('assets/sounds/collide.wav')
         item_path = os.path.join('assets/sounds/item.wav')
+        player_hit_path = os.path.join('assets/sounds/player_hit.wav')
+        enemy_hit_path = os.path.join('assets/sounds/enemy_hit.wav')
+        enemy_shoot_path = os.path.join('assets/sounds/enemy_shoot.wav')
 
         # set sounds
         self.fx_channel = pygame.mixer.Channel(2)
         collide_sound = pygame.mixer.Sound(collide_path)
         item_sound = pygame.mixer.Sound(item_path)
+        player_hit_sound = pygame.mixer.Sound(player_hit_path)
+        enemy_hit_sound = pygame.mixer.Sound(enemy_hit_path)
+        enemy_shoot_sound = pygame.mixer.Sound(enemy_shoot_path)
 
         # set volume
         collide_sound.set_volume(0.75)
+        item_sound.set_volume(0.75)
+        player_hit_sound.set_volume(0.75)
+        enemy_hit_sound.set_volume(0.75)
+        enemy_shoot_sound.set_volume(0.75)
 
         # add to dictionary
-        self.sfx_dictionary = {"collide": collide_sound, "potion": item_sound} 
+        self.sfx_dictionary = { "collide": collide_sound, 
+                                "potion": item_sound, 
+                                "player_hit": player_hit_sound,
+                                "enemy_hit": enemy_hit_sound,
+                                "enemy_shoot": enemy_shoot_sound } 
 
     def set_visual_effects(self):
         # potion

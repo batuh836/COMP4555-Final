@@ -1,4 +1,4 @@
-import pygame, os, math
+import pygame, os, random
 
 class Enemy:
     def __init__(self):
@@ -50,7 +50,10 @@ class Boss:
         self.screen_width = screen_width
         self.ground_height = round(screen_height/1.5)
         self.name = "BOSS"
-        self.health = 5
+        self.health = 1
+        self.shot_timer = 0
+        self.shot_time = 100
+        self.can_shoot = False
         self.font = pygame.font.SysFont('monospace', 18, bold=True)
         self.color = (255, 255, 255)
         self.set_surface()
@@ -60,18 +63,29 @@ class Boss:
     def is_alive(self):
         return self.health > 0
 
-    def update(self, loop):
-        if loop % 6 == 0:
-            self.x -= self.dx
-            self.y += self.dy
-            self.rect.x = self.x
-            self.rect.y = self.y
+    def shoot(self, shot):
+        self.can_shoot = False
+        y = random.choice([self.ground_height, self.ground_height*0.25])
+        return shot.get_shot("enemy", self.x, y)
 
-            if self.rect.top <= 0:
-                self.dy = 1
-            elif self.rect.bottom >= self.ground_height:
-                self.dy = -1
-                
+    def update(self, loop):
+        if self.is_alive():
+            self.shot_timer += 1
+            if self.shot_timer >= self.shot_time:
+                self.can_shoot = True
+                self.shot_timer = 0
+            if loop % 6 == 0:
+                self.x -= self.dx
+                self.y += self.dy
+                self.rect.x = self.x
+                self.rect.y = self.y
+
+                if self.rect.top <= 0:
+                    self.dy = 1
+                elif self.rect.bottom >= self.ground_height:
+                    self.dy = -1
+        else:
+            self.surface.set_alpha(self.surface.get_alpha() - 1)
 
     def show(self, screen):
         screen.blit(self.surface, (self.x, self.y))

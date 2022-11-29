@@ -67,6 +67,9 @@ class Player:
         location = (10, screen.get_height() - label.get_height() - 10)
         screen.blit(label, location)
 
+    def shoot(self, shot):
+        return shot.get_shot("player", self.x, self.y)
+
     def set_surface(self):
         for i in range(4):
             path = os.path.join(f'assets/images/player/player_0{i}.png')

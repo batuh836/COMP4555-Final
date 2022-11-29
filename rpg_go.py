@@ -9,6 +9,7 @@ from score import *
 from bg import *
 from bgm import *
 from effects import *
+from shot import *
 
 # pygame
 pygame.init()
@@ -31,8 +32,11 @@ class Game:
         self.battle = Battle(self, WIDTH, HEIGHT)
         self.bgm = BGM()
         self.effects = Effects(WIDTH, HEIGHT)
+        self.shot = Shot()
         self.loop = 0
         self.speed = 5
+        self.distance = 0
+        self.boss_distance = 10
 
         # show objects
         self.bg[0].show(screen)
@@ -46,6 +50,9 @@ class Game:
         self.is_over = False
         self.in_battle = False
         self.in_boss_battle = False
+        self.is_level_complete = False
+        self.player_shot = None
+        self.enemy_shot = None
         self.set_labels()
         self.set_sound()
         self.spawn_obstacle()
@@ -70,15 +77,17 @@ class Game:
         self.is_playing = True
         self.in_battle = False
         if self.in_boss_battle:
-            self.shoot()
+            self.player_shot = self.player.shoot(self.shot)
 
     def start_boss(self):
         self.in_boss_battle = True
         self.boss = Boss(WIDTH, HEIGHT)
         self.bgm.start_boss()
 
-    def shoot(self):
-        pass
+    def end_level(self):
+        self.is_level_complete = True
+        self.components.clear()
+        self.bgm.start_victory()
 
     def over(self):
         self.sound.play()
@@ -88,7 +97,7 @@ class Game:
         self.is_over = True
 
     def can_spawn(self, loop):
-        return loop % 50 == 0
+        return loop % 50 == 0 and not self.is_level_complete
 
     def spawn_obstacle(self):
         #list with components
@@ -97,13 +106,13 @@ class Game:
             #calculate distance between obstacles
             dist = prev_obstacle.x + self.player.width + self.component_dist
             x = random.randint(dist, round(WIDTH/2 + dist))
-
-        #empty
         else:
             x = random.randint(WIDTH, round(WIDTH*1.5))
 
-        obstacle_type = random.choice([0, 1, 2])
-        # obstacle_type = 2
+        if self.in_boss_battle:
+            obstacle_type = random.choice([1, 2])
+        else:
+            obstacle_type = random.choice([0, 1, 2])
 
         if obstacle_type == 0:
             #create new obstacle
@@ -120,27 +129,47 @@ class Game:
             new_item = self.obstacle.create_item(x, HEIGHT)
             self.components.append(new_item)
 
-    def collision(self, player, component):
-        if player.rect.colliderect(component.rect):
-            if isinstance(component, Enemy_Field):
-                print("collided with enemy")
-                self.components.clear()
-                self.start_battle()
+    def collision(self, obj1, obj2):
+        if obj1.rect.colliderect(obj2.rect):
+            if isinstance(obj1, Player):
+                if isinstance(obj2, Enemy_Field):
+                    self.components.clear()
+                    self.start_battle()
 
-            elif isinstance(component, Obstacle):
-                self.components.remove(component)
-                self.player.health -= 1
-                self.player.hit()
-                self.effects.play_sfx("collide")
+                elif isinstance(obj2, Obstacle):
+                    self.components.remove(obj2)
+                    self.player.health -= 1
+                    self.player.hit()
+                    self.effects.play_sfx("collide")
 
-            elif isinstance(component, Item):
-                self.components.remove(component)
-                self.player.health += 1
-                self.effects.play_sfx("potion")
-                self.vfxs.append(self.effects.create_vfx("potion", (self.player.x, self.player.y)))
+                elif isinstance(obj2, Item):
+                    self.components.remove(obj2)
+                    self.player.health += 1
+                    self.effects.play_sfx("potion")
+                    self.vfxs.append(self.effects.create_vfx("potion", self.player.rect.topleft))
 
-            elif isinstance(component, Boss):
-                self.over()
+                elif isinstance(obj2, Boss):
+                    self.over()
+
+                elif isinstance(obj2, ShotEffect):
+                    self.enemy_shot = None
+                    self.player.health -= 2
+                    self.player.hit()
+                    self.effects.play_sfx("player_hit")
+
+            if isinstance(obj1, Boss):
+                if isinstance(obj2, ShotEffect):
+                    self.player_shot = None
+                    self.boss.health -= 1
+                    self.boss.dx += 1
+                    self.boss.shot_time -= 10
+
+                    if self.boss.is_alive():
+                        self.effects.play_sfx("enemy_hit")
+                        self.vfxs.append(self.effects.create_vfx("hit", self.boss.rect.center))
+                    else:
+                        self.end_level()
+
 
     def set_sound(self):
         path = os.path.join('assets/sounds/die.wav')
@@ -174,13 +203,18 @@ def main():
             game.battle.show(screen)
             
         elif game.is_playing:
-            # increase speed
-            if game.loop % 1000 == 0 and not game.in_boss_battle:
-                game.speed += 1
+            # distance update
+            if not game.is_level_complete:
+                game.distance += 1
 
-            # boss timer
-            if game.loop % 500 == 0 and not game.in_boss_battle:
-                game.start_boss()
+                if not game.in_boss_battle:
+                    # increase speed
+                    if game.loop % 1000 == 0:
+                        game.speed += 1
+
+                    # boss timer
+                    if game.distance == game.boss_distance:
+                        game.start_boss()
 
             #background
             for bg in game.bg:
@@ -217,13 +251,46 @@ def main():
                 game.boss.update(game.loop)
                 game.boss.show(screen)
                 game.boss.show_health(screen)
-                game.collision(game.player, game.boss)
+
+                # boss defeat
+                if game.boss.is_alive():
+                    game.collision(game.player, game.boss)
+
+                    # player shot
+                    if game.player_shot:
+                        game.player_shot.update(game.loop)
+                        game.player_shot.show(screen)
+                        game.collision(game.boss, game.player_shot)
+
+                    # enemy shot
+                    if game.boss.can_shoot:
+                        game.enemy_shot = game.boss.shoot(game.shot)
+                
+                    if game.enemy_shot:
+                        game.enemy_shot.update(game.loop)
+                        game.enemy_shot.show(screen)
+                        game.collision(game.player, game.enemy_shot)
+                else:
+                    if game.boss.surface.get_alpha() > 0 and game.loop % 20 == 0:
+                        boss_rect = game.boss.rect
+                        effect_location = random.choice([
+                            boss_rect.center,
+                            boss_rect.topleft,
+                            boss_rect.topright,
+                            boss_rect.bottomleft,
+                            boss_rect.bottomright
+                        ])
+                        game.vfxs.append(game.effects.create_vfx("hit", effect_location))
+                        game.effects.play_sfx("enemy_hit")
+                    elif game.boss.surface.get_alpha() == 0:
+                        game.in_boss_battle = False
 
         # bgm
         game.bgm.update(game)
 
         # ui
-        game.score.update(game.loop)
+        if not game.is_level_complete:
+            game.score.update(game.loop)
         game.score.show(screen)
         game.player.show_health(screen)
 

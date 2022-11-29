@@ -4,8 +4,8 @@ class Score:
     def __init__(self, hs):
         self.high_score = hs
         self.score = 0
-        self.font = pygame.font.SysFont('monospace', 18)
-        self.color = (0, 0, 0)
+        self.font = pygame.font.SysFont('monospace', 18, bold=True)
+        self.color = (255, 255, 255)
         self.set_sound()
 
     def update(self, loop):
@@ -24,8 +24,7 @@ class Score:
 
     def show(self, screen):
         self.label = self.font.render(f"HI {self.high_score} {self.score}", 1, self.color)
-        label_width = self.label.get_rect().width
-        screen.blit(self.label, (screen.get_width() - label_width - 10, 10))
+        screen.blit(self.label, (10, 10))
 
     def check_sound(self):
         if self.score % 100 == 0 and self.score != 0:
