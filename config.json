@@ -1,0 +1,54 @@
+{
+    "level_settings": [
+        {
+            "level" : 1,
+            "player_run" : ["assets/images/player/terra/run_0.png", 
+                            "assets/images/player/terra/run_1.png", 
+                            "assets/images/player/terra/run_2.png", 
+                            "assets/images/player/terra/run_3.png"],
+            "player_hit" : "assets/images/player/terra/hit.png",
+            "player_portrait" : "assets/images/player/terra/portrait.png",
+            "bgm" : ["assets/sounds/bgm/field_intro.wav","assets/sounds/bgm/field.wav"],
+            "boss_bgm" : ["assets/sounds/boss/boss_intro.wav","assets/sounds/boss/boss.wav"],
+            "fanfare" : ["assets/sounds/fanfare/fanfare_intro.wav","assets/sounds/fanfare/fanfare.wav"],
+            "bg" : "assets/images/bg/field_bg.png",
+            "fg" : "assets/images/bg/field_fg.png",
+            "boss" : "assets/images/bosses/ghoul.png",
+            "obstacle" : "assets/images/components/cactus.png",
+            "enemy" : "assets/images/components/bird.png",
+            "enemy_battle" : "assets/images/enemies/bat.png",
+            "item" : "assets/images/components/potion.png"
+        }
+    ],
+    "image_settings": [
+        {
+            "battle_border" : "assets/images/misc/battle_border.png",
+            "target" : "assets/images/misc/target.png"
+        }
+    ],
+    "vfx_settings": [
+        {
+            "enemy_shot" : "assets/images/effects/enemy_shot",
+            "hit" : "assets/images/effects/hit_effect",
+            "player_shot" : "assets/images/effects/player_shot",
+            "potion" : "assets/images/effects/potion_effect"
+        }
+    ],
+    "sfx_settings": [
+        {
+            "collide" : "assets/sounds/sfx/collide.wav",
+            "die" : "assets/sounds/sfx/die.wav",
+            "encounter" : "assets/sounds/sfx/encounter.wav",
+            "enemy_hit" : "assets/sounds/sfx/enemy_hit.wav",
+            "enemy_shoot" : "assets/sounds/sfx/enemy_shoot.wav",
+            "fire" : "assets/sounds/sfx/fire.wav",
+            "hit" : "assets/sounds/sfx/hit.wav",
+            "item" : "assets/sounds/sfx/item.wav",
+            "jump" : "assets/sounds/sfx/jump.wav",
+            "miss" : "assets/sounds/sfx/miss.wav",
+            "player_hit" : "assets/sounds/sfx/player_hit.wav",
+            "point" : "assets/sounds/sfx/point.wav",
+            "win" : "assets/sounds/sfx/win.wav"
+        }
+    ]
+}

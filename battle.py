@@ -2,7 +2,8 @@ import pygame, os, random
 from enemy import *
 
 class Battle:
-    def __init__(self, game, screen_width, screen_height):
+    def __init__(self, settings, game, screen_width, screen_height):
+        self.settings = settings
         self.game = game
         self.width = round(screen_width*0.9)
         self.height = round(screen_height*0.75)
@@ -33,7 +34,7 @@ class Battle:
         self.fx_channel.play(self.encounter_sound)
         self.end_battle_timer = 0
         self.player_target_pos = self.enemy_positions[0]
-        self.enemy = Enemy()
+        self.enemy = Enemy(self.settings)
         self.set_enemy_pos()
         self.show(screen)
 
@@ -65,9 +66,9 @@ class Battle:
             self.end()
 
     def set_surfaces(self):
-        border_path = os.path.join('assets/images/battle_border.png')
-        bg_path = os.path.join('assets/images/bg/bg_00.png')
-        target_path = os.path.join('assets/images/target.png')
+        border_path = self.settings.get_image_setting("battle_border")
+        bg_path = self.settings.get_level_setting("bg")
+        target_path = self.settings.get_image_setting("target")
 
         border_image = pygame.image.load(border_path).convert_alpha()
         bg_image = pygame.image.load(bg_path).convert_alpha()
@@ -107,11 +108,11 @@ class Battle:
 
     def set_sounds(self):
         # set paths
-        encounter_path = os.path.join('assets/sounds/encounter.wav')
-        fire_path = os.path.join('assets/sounds/fire.wav')
-        hit_path = os.path.join('assets/sounds/hit.wav')
-        miss_path = os.path.join('assets/sounds/miss.wav')
-        win_path = os.path.join('assets/sounds/win.wav')
+        encounter_path = self.settings.get_sfx_setting("encounter")
+        fire_path = self.settings.get_sfx_setting("fire")
+        hit_path = self.settings.get_sfx_setting("hit")
+        miss_path = self.settings.get_sfx_setting("miss")
+        win_path = self.settings.get_sfx_setting("win")
 
         # set sounds
         self.fx_channel = pygame.mixer.Channel(1)

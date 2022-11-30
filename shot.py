@@ -1,7 +1,8 @@
 import pygame, os, random
 
 class Shot:
-    def __init__(self):
+    def __init__(self, settings):
+        self.settings = settings
         self.width = 75
         self.height = 75
         self.shot_speed = 7.5
@@ -19,9 +20,11 @@ class Shot:
         return ShotEffect(frames, speed, x, y)
 
     def set_surfaces(self):
+        player_shot_path = self.settings.get_vfx_setting("player_shot")
+        enemy_shot_path = self.settings.get_vfx_setting("enemy_shot")
         for i in range(11):
-            player_path = os.path.join(f'assets/images/effects/player_shot/shot_{i}.png')
-            enemy_path = os.path.join(f'assets/images/effects/enemy_shot/shot_{i}.png')
+            player_path = os.path.join(player_shot_path, f'shot_{i}.png')
+            enemy_path = os.path.join(enemy_shot_path, f'shot_{i}.png')
             player_image = pygame.image.load(player_path).convert_alpha()
             enemy_image = pygame.image.load(enemy_path).convert_alpha()
             self.player_shot.append(pygame.transform.scale(player_image, (self.width, self.height)))

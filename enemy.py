@@ -1,14 +1,13 @@
 import pygame, os, random
 
 class Enemy:
-    def __init__(self):
+    def __init__(self, settings):
+        self.settings = settings
         self.size = (40, 30)
         self.health = 3
         self.font = pygame.font.SysFont('monospace', 18, bold=True)
         self.color = (255, 255, 255)
         self.set_surface()
-        self.set_rect()
-        self.set_sound()
 
     def is_alive(self):
         return self.health > 0
@@ -29,19 +28,13 @@ class Enemy:
         screen.blit(label, location)
 
     def set_surface(self):
-        bat_path = os.path.join('assets/images/bat.png')
-        bat_image = pygame.image.load(bat_path).convert_alpha()
-        self.surface = pygame.transform.scale(bat_image, self.size)
-
-    def set_rect(self):
-        pass
-
-    def set_sound(self):
-        path = os.path.join('assets/sounds/jump.wav')
-        self.sound = pygame.mixer.Sound(path)
+        path = self.settings.get_level_setting("enemy_battle")
+        image = pygame.image.load(path).convert_alpha()
+        self.surface = pygame.transform.scale(image, self.size)
 
 class Boss:
-    def __init__(self, screen_width, screen_height):
+    def __init__(self, settings, screen_width, screen_height):
+        self.settings = settings
         self.size = (screen_width*0.35, screen_height*0.5)
         self.x = screen_width
         self.y = screen_height/2
@@ -50,15 +43,14 @@ class Boss:
         self.screen_width = screen_width
         self.ground_height = round(screen_height/1.5)
         self.name = "BOSS"
-        self.health = 1
+        self.health = 5
         self.shot_timer = 0
-        self.shot_time = 100
+        self.shot_time = 300
         self.can_shoot = False
         self.font = pygame.font.SysFont('monospace', 18, bold=True)
         self.color = (255, 255, 255)
         self.set_surface()
         self.set_rect()
-        self.set_sound()
 
     def is_alive(self):
         return self.health > 0
@@ -100,13 +92,9 @@ class Boss:
         screen.blit(label, location)
 
     def set_surface(self):
-        bat_path = os.path.join('assets/images/boss_01.png')
-        bat_image = pygame.image.load(bat_path).convert_alpha()
-        self.surface = pygame.transform.scale(bat_image, self.size)
+        path = self.settings.get_level_setting("boss")
+        image = pygame.image.load(path).convert_alpha()
+        self.surface = pygame.transform.scale(image, self.size)
 
     def set_rect(self):
         self.rect = pygame.Rect((self.x, self.y), (self.size))
-
-    def set_sound(self):
-        path = os.path.join('assets/sounds/jump.wav')
-        self.sound = pygame.mixer.Sound(path)

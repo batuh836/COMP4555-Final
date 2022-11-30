@@ -1,8 +1,9 @@
 import pygame, os, math
 
 class Component:
-    def __init__(self, screen_width, screen_height):
+    def __init__(self, settings, screen_width, screen_height):
         # set surfaces
+        self.settings = settings
         self.set_obstacle_surface(screen_width, screen_height)
         self.set_enemy_surface(screen_width, screen_height)
         self.set_item_surface(screen_width)
@@ -20,20 +21,20 @@ class Component:
         return new_item
 
     def set_obstacle_surface(self, screen_width, screen_height):
-        path = os.path.join('assets/images/cactus.png')
+        path = self.settings.get_level_setting("obstacle")
         image = pygame.image.load(path).convert_alpha()
         size = (round(screen_width/18), round(screen_height/4))
         self.obstacle_y = round(screen_height/1.75)
         self.obstacle_surface = pygame.transform.scale(image, size)
 
     def set_enemy_surface(self, screen_width, screen_height):
-        path = os.path.join('assets/images/bird.png')
+        path = self.settings.get_level_setting("enemy")
         image = pygame.image.load(path).convert_alpha()
         size = (round(screen_width/18), round(screen_height/10))
         self.enemy_surface = pygame.transform.scale(image, size)
 
     def set_item_surface(self, screen_width):
-        path = os.path.join('assets/images/components/potion.png')
+        path = self.settings.get_level_setting("item")
         image = pygame.image.load(path).convert_alpha()
         size = (round(screen_width/18), round(screen_width/18))
         self.item_surface = pygame.transform.scale(image, size)

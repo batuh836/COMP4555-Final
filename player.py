@@ -1,7 +1,8 @@
 import pygame, os, math
 
 class Player:
-    def __init__(self, screen_width, screen_height):
+    def __init__(self, settings, screen_width, screen_height):
+        self.settings = settings
         self.width = round(screen_width/15)
         self.height = self.width
         self.x = round(screen_width/60)
@@ -71,13 +72,13 @@ class Player:
         return shot.get_shot("player", self.x, self.y)
 
     def set_surface(self):
-        for i in range(4):
-            path = os.path.join(f'assets/images/player/player_0{i}.png')
+        player_run_paths = self.settings.get_level_setting("player_run")
+        for path in player_run_paths:
             image = pygame.image.load(path).convert_alpha()
             self.surfaces.append(pygame.transform.scale(image, (self.width, self.height)))
         self.surface = self.surfaces[0]
 
-        path = os.path.join(f'assets/images/player/player_hit.png')
+        path = self.settings.get_level_setting("player_hit")
         image = pygame.image.load(path).convert_alpha()
         self.hit_surface = pygame.transform.scale(image, (self.width, self.height))
         
@@ -85,7 +86,7 @@ class Player:
         self.rect = pygame.Rect(self.x, self.y, self.width*0.5, self.height*0.5)
 
     def set_sound(self):
-        path = os.path.join('assets/sounds/jump.wav')
+        path = self.settings.get_sfx_setting("jump")
         self.sound = pygame.mixer.Sound(path)
 
     def is_alive(self):

@@ -1,7 +1,8 @@
 import pygame, os
 
 class Effects:
-    def __init__(self, screen_width, screen_height):
+    def __init__(self, settings, screen_width, screen_height):
+        self.settings = settings
         self.vfx_size_s = (round(screen_width/18), round(screen_width/18))
         self.vfx_size_m = (round(screen_width/15), round(screen_width/15))
         self.set_sound_effects()
@@ -17,11 +18,11 @@ class Effects:
 
     def set_sound_effects(self):
         # set paths
-        collide_path = os.path.join('assets/sounds/collide.wav')
-        item_path = os.path.join('assets/sounds/item.wav')
-        player_hit_path = os.path.join('assets/sounds/player_hit.wav')
-        enemy_hit_path = os.path.join('assets/sounds/enemy_hit.wav')
-        enemy_shoot_path = os.path.join('assets/sounds/enemy_shoot.wav')
+        collide_path = self.settings.get_sfx_setting("collide")
+        item_path = self.settings.get_sfx_setting("item")
+        player_hit_path = self.settings.get_sfx_setting("player_hit")
+        enemy_hit_path = self.settings.get_sfx_setting("enemy_hit")
+        enemy_shoot_path = self.settings.get_sfx_setting("enemy_shoot")
 
         # set sounds
         self.fx_channel = pygame.mixer.Channel(2)
@@ -48,15 +49,17 @@ class Effects:
     def set_visual_effects(self):
         # potion
         potion_effect = []
+        potion_effect_path = self.settings.get_vfx_setting("potion")
         for i in range(12):
-            path = os.path.join(f'assets/images/effects/potion_effect/potion_{i}.png')
+            path = os.path.join(potion_effect_path, f'potion_{i}.png')
             image = pygame.image.load(path).convert_alpha()
             potion_effect.append(pygame.transform.scale(image, self.vfx_size_m))
 
         # hit
         hit_effect = []
+        hit_effect_path = self.settings.get_vfx_setting("hit")
         for i in range(3):
-            path = os.path.join(f'assets/images/effects/hit_effect/hit_{i}.png')
+            path = os.path.join(hit_effect_path, f'hit_{i}.png')
             image = pygame.image.load(path).convert_alpha()
             hit_effect.append(pygame.transform.scale(image, self.vfx_size_m))
 
