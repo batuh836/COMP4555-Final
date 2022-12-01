@@ -72,13 +72,13 @@ class Player:
         return shot.get_shot("player", self.x, self.y)
 
     def set_surface(self):
-        player_run_paths = self.settings.get_level_setting("player_run")
+        player_run_paths = self.settings.get_player_setting("player_run")
         for path in player_run_paths:
             image = pygame.image.load(path).convert_alpha()
             self.surfaces.append(pygame.transform.scale(image, (self.width, self.height)))
         self.surface = self.surfaces[0]
 
-        path = self.settings.get_level_setting("player_hit")
+        path = self.settings.get_player_setting("player_hit")
         image = pygame.image.load(path).convert_alpha()
         self.hit_surface = pygame.transform.scale(image, (self.width, self.height))
         

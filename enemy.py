@@ -35,7 +35,7 @@ class Enemy:
 class Boss:
     def __init__(self, settings, screen_width, screen_height):
         self.settings = settings
-        self.size = (screen_width*0.35, screen_height*0.5)
+        self.size = (screen_width*0.25, screen_height*0.5)
         self.x = screen_width
         self.y = screen_height/2
         self.dx = 1
@@ -58,7 +58,7 @@ class Boss:
     def shoot(self, shot):
         self.can_shoot = False
         y = random.choice([self.ground_height, self.ground_height*0.25])
-        return shot.get_shot("enemy", self.x, y)
+        return shot.get_shot("enemy", self.rect.centerx, y)
 
     def update(self, loop):
         if self.is_alive():

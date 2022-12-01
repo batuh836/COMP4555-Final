@@ -25,6 +25,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 class Game:
     def __init__(self, level = 1, high_score = 0):
         # initialize objects
+        print(level)
         self.level = level
         self.settings = Settings(self.level)
         self.bg = [BG(self.settings, 0, WIDTH, HEIGHT), BG(self.settings, WIDTH, WIDTH, HEIGHT)]
@@ -77,7 +78,7 @@ class Game:
         self.bgm.start_bgm()
 
     def start_next_level(self):
-        self.__init__(self.level + 1, self.score.high_score)
+        self.__init__(self.level + 1, self.score.total_score)
 
     def start_battle(self):
         self.in_battle = True
@@ -172,7 +173,7 @@ class Game:
                 if isinstance(obj2, ShotEffect):
                     self.player_shot = None
                     self.boss.health -= 1
-                    self.boss.dx += 1
+                    self.boss.dx += 0.5
                     self.boss.shot_time -= 10
 
                     if self.boss.is_alive():
@@ -188,13 +189,13 @@ class Game:
         self.sound = pygame.mixer.Sound(path)
 
     def restart(self):
-        self.__init__(self.score.high_score)
+        self.__init__(self.level, self.score.high_score)
 
     def game_controls(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
             if self.is_playing:
-                if self.is_level_complete:
+                if self.is_level_complete and not self.in_boss_battle:
                     self.start_next_level()
                 if self.player.on_ground:
                     self.player.jump()
@@ -248,6 +249,8 @@ def main():
                 
                 #player
                 if game.player.is_alive():
+                    if game.is_level_complete:
+                        game.player.x += 5
                     game.player.update(game.loop)
                     game.player.show(screen)
                     game.player.show_health(screen)
@@ -285,6 +288,7 @@ def main():
 
                         # enemy shot
                         if game.boss.can_shoot:
+                            game.effects.play_sfx("enemy_shoot")
                             game.enemy_shot = game.boss.shoot(game.shot)
                     
                         if game.enemy_shot:
