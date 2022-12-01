@@ -43,11 +43,11 @@ class Game:
         self.speed = 5
         self.distance = 0
         self.item_timer = 500
-        self.boss_distance = 1000
+        self.boss_distance = self.settings.get_level_setting("boss_distance")
         self.obstacles_hit = 0
 
         self.components = []
-        self.component_dist = round(WIDTH/10)
+        self.component_dist = round(WIDTH/5)
         self.vfxs = []
         self.is_playing = False
         self.is_over = False
@@ -115,15 +115,12 @@ class Game:
             prev_component = self.components[-1]
             #calculate distance between obstacles
             dist = prev_component.x + self.player.width + self.component_dist
-            x = random.randint(dist, round(WIDTH/2 + dist))
+            x = random.randint(round(dist), round(WIDTH/2 + dist))
         else:
             x = random.randint(WIDTH, round(WIDTH*1.5))
 
         if component_type == None:
-            if self.in_boss_battle:
-                component_type = "enemy"
-            else:
-                component_type = random.choice(["obstacle", "enemy"])
+            component_type = random.choice(["obstacle", "enemy"])
 
         if component_type == "obstacle":
             #create new obstacle
@@ -144,7 +141,10 @@ class Game:
         if obj1.rect.colliderect(obj2.rect):
             if isinstance(obj1, Player):
                 if isinstance(obj2, Enemy_Field):
-                    self.components.clear()
+                    # for component in self.components:
+                    #     if isinstance(component, Enemy_Field):
+                    #         self.components.remove(component)
+                    self.components.remove(obj2)
                     self.start_battle()
 
                 elif isinstance(obj2, Obstacle):
@@ -173,7 +173,7 @@ class Game:
                 if isinstance(obj2, ShotEffect):
                     self.player_shot = None
                     self.boss.health -= 1
-                    self.boss.dx += 0.5
+                    self.boss.dx += 0.25
                     self.boss.shot_time -= 10
 
                     if self.boss.is_alive():
@@ -189,7 +189,7 @@ class Game:
         self.sound = pygame.mixer.Sound(path)
 
     def restart(self):
-        self.__init__(self.level, self.score.high_score)
+        self.__init__(self.level, self.score.total_score)
 
     def game_controls(self):
         keys = pygame.key.get_pressed()
@@ -227,7 +227,7 @@ def main():
                     if not game.in_boss_battle:
                         # increase speed
                         if game.loop % 1000 == 0:
-                            game.speed += 1
+                            game.speed += 0.5
 
                         # boss timer
                         if game.distance == game.boss_distance:
@@ -266,7 +266,7 @@ def main():
                     if component.x < -50:
                         game.components.remove(component)
                     else:
-                        component.update(-game.speed)
+                        component.update(-game.speed, game.loop)
                         component.show(screen)
                         game.collision(game.player, component)
 

@@ -7,6 +7,7 @@ class Settings:
         data = json.load(file)
         self.level_settings = data["level_settings"]
         self.player_settings = data["player_settings"]
+        self.enemy_settings = data["enemy_settings"]
         self.image_settings = data["image_settings"]
         self.vfx_settings = data["vfx_settings"]
         self.sfx_settings = data["sfx_settings"]
@@ -23,6 +24,9 @@ class Settings:
 
     def get_player_setting(self, key):
         return self.player_settings[0][key]
+
+    def get_enemy_setting(self, key):
+        return self.enemy_settings[0][key]
 
     def get_image_setting(self, key):
         return self.image_settings[0][key]

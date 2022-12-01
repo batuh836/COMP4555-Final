@@ -11,6 +11,7 @@ class Battle:
         self.y = screen_height*0.5 - self.height*0.5
 
         # enemy positions
+        self.enemy_speed = self.settings.get_level_setting("enemy_speed")
         enemy_pos_center = (self.width*0.65, self.height*0.5)
         enemy_pos_top = (self.width*0.65, self.height*0.25)
         enemy_pos_bottom = (self.width*0.65, self.height*0.75)
@@ -52,7 +53,7 @@ class Battle:
         self.enemy_current_pos = new_enemy_positions[random_enemy_pos]
 
     def update(self, loop):
-        if loop % 50 == 0:
+        if loop % self.enemy_speed == 0:
             self.set_enemy_pos()
 
     def show(self, screen):
@@ -124,8 +125,8 @@ class Battle:
 
         # set volume
         self.encounter_sound.set_volume(0.75)
-        self.fire_sound.set_volume(0.75)
-        self.miss_sound.set_volume(0.75)
+        self.fire_sound.set_volume(0.5)
+        self.miss_sound.set_volume(0.5)
         self.win_sound.set_volume(0.75)
 
     def battle_controls(self, event):

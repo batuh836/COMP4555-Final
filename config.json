@@ -9,61 +9,91 @@
             "fg" : "assets/images/bg/field_fg.png",
             "boss" : "assets/images/bosses/ghoul.png",
             "obstacle" : "assets/images/components/bush.png",
-            "enemy" : "assets/images/components/bird.png",
-            "enemy_battle" : "assets/images/enemies/bat.png",
-            "item" : "assets/images/components/potion.png"
+            "enemy" : "assets/images/enemies/falcon.png",
+            "item" : "assets/images/components/potion.png",
+            "boss_health" : 5,
+            "boss_strength" : 2,
+            "boss_speed" : 1.0,
+            "boss_shot_time" : 300,
+            "boss_distance" : 3000,
+            "enemy_health" : 3,
+            "enemy_speed" : 50
         },
         {
             "level" : 2,
-            "bgm" : ["assets/sounds/bgm/field_intro.wav","assets/sounds/bgm/field.wav"],
-            "boss_bgm" : ["assets/sounds/boss/boss_intro.wav","assets/sounds/boss/boss.wav"],
+            "bgm" : ["assets/sounds/bgm/ruins_intro.wav","assets/sounds/bgm/ruins.wav"],
+            "boss_bgm" : ["assets/sounds/boss/unforgiven_intro.wav","assets/sounds/boss/unforgiven.wav"],
             "fanfare" : ["assets/sounds/fanfare/fanfare_intro.wav","assets/sounds/fanfare/fanfare.wav"],
             "bg" : "assets/images/bg/snow_field_bg.png",
             "fg" : "assets/images/bg/snow_field_fg.png",
             "boss" : "assets/images/bosses/leviathan.png",
             "obstacle" : "assets/images/components/snow_bush.png",
-            "enemy" : "assets/images/components/bird.png",
-            "enemy_battle" : "assets/images/enemies/bat.png",
-            "item" : "assets/images/components/potion.png"
+            "enemy" : "assets/images/enemies/wraith.png",
+            "item" : "assets/images/components/potion.png",
+            "boss_health" : 6,
+            "boss_strength" : 2,
+            "boss_speed" : 1.0,
+            "boss_shot_time" : 275,
+            "boss_distance" : 4000,
+            "enemy_health" : 4,
+            "enemy_speed" : 45
         },
         {
             "level" : 3,
-            "bgm" : ["assets/sounds/bgm/field_intro.wav","assets/sounds/bgm/field.wav"],
-            "boss_bgm" : ["assets/sounds/boss/boss_intro.wav","assets/sounds/boss/boss.wav"],
+            "bgm" : ["assets/sounds/bgm/train.wav","assets/sounds/bgm/train.wav"],
+            "boss_bgm" : ["assets/sounds/boss/fierce_battle_intro.wav","assets/sounds/boss/fierce_battle.wav"],
             "fanfare" : ["assets/sounds/fanfare/fanfare_intro.wav","assets/sounds/fanfare/fanfare.wav"],
             "bg" : "assets/images/bg/train_bg.png",
             "fg" : "assets/images/bg/train_fg.png",
             "boss" : "assets/images/bosses/hell_chariot.png",
             "obstacle" : "assets/images/components/bush.png",
-            "enemy" : "assets/images/components/bird.png",
-            "enemy_battle" : "assets/images/enemies/bat.png",
-            "item" : "assets/images/components/potion.png"
+            "enemy" : "assets/images/enemies/mech.png",
+            "item" : "assets/images/components/potion.png",
+            "boss_health" : 7,
+            "boss_strength" : 3,
+            "boss_speed" : 1.25,
+            "boss_shot_time" : 250,
+            "boss_distance" : 5000,
+            "enemy_health" : 5,
+            "enemy_speed" : 40
         },
         {
             "level" : 4,
-            "bgm" : ["assets/sounds/bgm/field_intro.wav","assets/sounds/bgm/field.wav"],
-            "boss_bgm" : ["assets/sounds/boss/boss_intro.wav","assets/sounds/boss/boss.wav"],
+            "bgm" : ["assets/sounds/bgm/omen_intro.wav","assets/sounds/bgm/omen.wav"],
+            "boss_bgm" : ["assets/sounds/boss/revolution_intro.wav","assets/sounds/boss/revolution.wav"],
             "fanfare" : ["assets/sounds/fanfare/fanfare_intro.wav","assets/sounds/fanfare/fanfare.wav"],
             "bg" : "assets/images/bg/bridge_bg.png",
             "fg" : "assets/images/bg/bridge_fg.png",
             "boss" : "assets/images/bosses/hell_demon.png",
             "obstacle" : "assets/images/components/bush.png",
-            "enemy" : "assets/images/components/bird.png",
-            "enemy_battle" : "assets/images/enemies/bat.png",
-            "item" : "assets/images/components/potion.png"
+            "enemy" : "assets/images/enemies/demon.png",
+            "item" : "assets/images/components/potion.png",
+            "boss_health" : 8,
+            "boss_strength" : 3,
+            "boss_speed" : 1.25,
+            "boss_shot_time" : 225,
+            "boss_distance" : 6000,
+            "enemy_health" : 6,
+            "enemy_speed" : 35
         },
         {
             "level" : 5,
-            "bgm" : ["assets/sounds/bgm/field_intro.wav","assets/sounds/bgm/field.wav"],
-            "boss_bgm" : ["assets/sounds/boss/boss_intro.wav","assets/sounds/boss/boss.wav"],
+            "bgm" : ["assets/sounds/bgm/dark_world_intro.wav","assets/sounds/bgm/dark_world.wav"],
+            "boss_bgm" : ["assets/sounds/boss/last_battle_intro.wav","assets/sounds/boss/last_battle.wav"],
             "fanfare" : ["assets/sounds/fanfare/fanfare_intro.wav","assets/sounds/fanfare/fanfare.wav"],
             "bg" : "assets/images/bg/heaven_bg.png",
             "fg" : "assets/images/bg/heaven_fg.png",
             "boss" : "assets/images/bosses/fallen_angel.png",
             "obstacle" : "assets/images/components/bush.png",
-            "enemy" : "assets/images/components/bird.png",
-            "enemy_battle" : "assets/images/enemies/bat.png",
-            "item" : "assets/images/components/potion.png"
+            "enemy" : "assets/images/enemies/guardian.png",
+            "item" : "assets/images/components/potion.png",
+            "boss_health" : 9,
+            "boss_strength" : 4,
+            "boss_speed" : 1.5,
+            "boss_shot_time" : 200,
+            "boss_distance" : 7000,
+            "enemy_health" : 7,
+            "enemy_speed" : 30
         }
     ],
     "player_settings": [
@@ -74,6 +104,13 @@
                             "assets/images/player/terra/run_3.png"],
             "player_hit" : "assets/images/player/terra/hit.png",
             "player_portrait" : "assets/images/player/terra/portrait.png"
+        }
+    ],
+    "enemy_settings": [
+        {
+            "enemy_run" : [ "assets/images/enemy/enemy_0.png", 
+                            "assets/images/enemy/enemy_1.png", 
+                            "assets/images/enemy/enemy_2.png"]
         }
     ],
     "image_settings": [

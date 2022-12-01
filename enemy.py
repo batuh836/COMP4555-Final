@@ -3,8 +3,7 @@ import pygame, os, random
 class Enemy:
     def __init__(self, settings):
         self.settings = settings
-        self.size = (40, 30)
-        self.health = 3
+        self.health = self.settings.get_level_setting("enemy_health")
         self.font = pygame.font.SysFont('monospace', 18, bold=True)
         self.color = (255, 255, 255)
         self.set_surface()
@@ -28,24 +27,25 @@ class Enemy:
         screen.blit(label, location)
 
     def set_surface(self):
-        path = self.settings.get_level_setting("enemy_battle")
+        path = self.settings.get_level_setting("enemy")
         image = pygame.image.load(path).convert_alpha()
+        self.size = (60, 60)
         self.surface = pygame.transform.scale(image, self.size)
 
 class Boss:
     def __init__(self, settings, screen_width, screen_height):
         self.settings = settings
-        self.size = (screen_width*0.25, screen_height*0.5)
         self.x = screen_width
         self.y = screen_height/2
-        self.dx = 1
-        self.dy = 1
         self.screen_width = screen_width
         self.ground_height = round(screen_height/1.5)
         self.name = "BOSS"
-        self.health = 5
+        self.health = self.settings.get_level_setting("boss_health")
+        self.strength = self.settings.get_level_setting("boss_strength")
+        self.dx = self.settings.get_level_setting("boss_speed")
+        self.dy = 1
         self.shot_timer = 0
-        self.shot_time = 300
+        self.shot_time = self.settings.get_level_setting("boss_shot_time")
         self.can_shoot = False
         self.font = pygame.font.SysFont('monospace', 18, bold=True)
         self.color = (255, 255, 255)
@@ -94,7 +94,8 @@ class Boss:
     def set_surface(self):
         path = self.settings.get_level_setting("boss")
         image = pygame.image.load(path).convert_alpha()
-        self.surface = pygame.transform.scale(image, self.size)
+        self.surface = pygame.transform.scale2x(image)
+        self.size = self.surface.get_size()
 
     def set_rect(self):
         self.rect = pygame.Rect((self.x, self.y), (self.size))
