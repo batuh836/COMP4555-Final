@@ -121,7 +121,8 @@
     "image_settings": [
         {
             "battle_border" : "assets/images/misc/battle_border.png",
-            "target" : "assets/images/misc/target.png"
+            "target" : "assets/images/misc/target.png",
+            "attack" : "assets/images/misc/attack_2.png"
         }
     ],
     "vfx_settings": [
@@ -146,7 +147,8 @@
             "miss" : "assets/sounds/sfx/miss.wav",
             "player_hit" : "assets/sounds/sfx/player_hit.wav",
             "point" : "assets/sounds/sfx/point.wav",
-            "win" : "assets/sounds/sfx/win.wav"
+            "win" : "assets/sounds/sfx/win.wav",
+            "error" : "assets/sounds/sfx/error.wav"
         }
     ]
 }

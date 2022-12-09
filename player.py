@@ -74,6 +74,10 @@ class Player:
         game.player_shots.append(game.shot.get_shot("player", self.x, self.y)) 
         game.effects.play_sfx("player_shoot") 
 
+    def exit(self, screen):
+        if self.x < screen.get_width():
+            self.x += 5
+
     def set_surface(self):
         player_run_paths = self.settings.get_player_setting("run")
         for path in player_run_paths:
@@ -86,7 +90,7 @@ class Player:
         self.hit_surface = pygame.transform.scale(image, (self.width, self.height))
         
     def set_rect(self):
-        self.rect = pygame.Rect(self.x, self.y, self.width*0.5, self.height*0.5)
+        self.rect = pygame.Rect(self.x, self.y, self.width*0.75, self.height*0.75)
 
     def set_sound(self):
         path = self.settings.get_sfx_setting("jump")

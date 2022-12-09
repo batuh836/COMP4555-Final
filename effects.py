@@ -5,7 +5,7 @@ class Effects:
         screen_width = screen.get_width()
         self.settings = settings
         self.vfx_size_s = (round(screen_width/18), round(screen_width/18))
-        self.vfx_size_m = (round(screen_width/15), round(screen_width/15))
+        self.vfx_size_m = (round(screen_width/12), round(screen_width/12))
         self.set_sound_effects()
         self.set_visual_effects()
 

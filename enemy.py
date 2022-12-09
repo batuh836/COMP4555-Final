@@ -29,7 +29,7 @@ class Enemy:
     def set_surface(self):
         path = self.settings.get_level_setting("enemy")
         image = pygame.image.load(path).convert_alpha()
-        self.size = (60, 60)
+        self.size = (75, 75)
         self.surface = pygame.transform.scale(image, self.size)
 
 class Boss:
@@ -75,7 +75,7 @@ class Boss:
                 # enemy shot
                 self.shot_timer += 1
                 if self.shot_timer >= self.shot_time:
-                    self.shoot()
+                    self.shoot(game)
                 
                 # enemy movement
                 if game.loop % 6 == 0:

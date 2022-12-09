@@ -278,7 +278,7 @@ class Game:
                 self.distance += 1
 
                 # item timer
-                if self.loop % self.item_timer == 0:
+                if self.state != END_LEVEL_STATE and self.loop % self.item_timer == 0:
                     self.spawn_component("item")  
 
                 if self.state != BOSS_STATE:
@@ -318,7 +318,7 @@ class Game:
                 self.player.show(screen)
 
                 if self.state == END_LEVEL_STATE:
-                    self.player.x += 5 
+                    self.player.exit(screen)
                 else:
                     self.player.show_health(screen)
 
