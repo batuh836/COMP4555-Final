@@ -1,8 +1,10 @@
-import pygame, os, math
+import pygame, math
 
 class Player:
-    def __init__(self, settings, screen_width, screen_height):
+    def __init__(self, settings, screen):
         self.settings = settings
+        screen_width = screen.get_width()
+        screen_height = screen.get_height()
         self.width = round(screen_width/15)
         self.height = self.width
         self.x = round(screen_width/60)
@@ -37,7 +39,7 @@ class Player:
                 time_elapsed = self.jump_time/self.jump_duration
                 jump_frame = -1 * math.pow(time_elapsed, 2) + 1
 
-                #apply jump values to y
+                #apply jump values to y 
                 self.y = self.ground_height - (jump_frame * self.jump_height)
                 self.rect.y = self.y
 
@@ -54,7 +56,7 @@ class Player:
         #walking 
         elif self.on_ground and loop % 6 == 0:
             self.surface_num = (self.surface_num + 1) % 4
-            self.surface = self.surfaces[self.surface_num]
+            self.surface = self.surfaces[self.surface_num]      
 
     def show(self, screen):
         screen.blit(self.surface, (self.x, self.y))
@@ -68,17 +70,18 @@ class Player:
         location = (10, screen.get_height() - label.get_height() - 10)
         screen.blit(label, location)
 
-    def shoot(self, shot):
-        return shot.get_shot("player", self.x, self.y)
+    def shoot(self, game):
+        game.player_shots.append(game.shot.get_shot("player", self.x, self.y)) 
+        game.effects.play_sfx("player_shoot") 
 
     def set_surface(self):
-        player_run_paths = self.settings.get_player_setting("player_run")
+        player_run_paths = self.settings.get_player_setting("run")
         for path in player_run_paths:
             image = pygame.image.load(path).convert_alpha()
             self.surfaces.append(pygame.transform.scale(image, (self.width, self.height)))
         self.surface = self.surfaces[0]
 
-        path = self.settings.get_player_setting("player_hit")
+        path = self.settings.get_player_setting("hit")
         image = pygame.image.load(path).convert_alpha()
         self.hit_surface = pygame.transform.scale(image, (self.width, self.height))
         

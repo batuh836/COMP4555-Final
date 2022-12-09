@@ -9,16 +9,16 @@ class Score:
         self.color = (255, 255, 255)
         self.set_sound()
 
-    def update(self, game, loop):
-        if game.is_level_complete:
+    def update(self, game):
+        if game.state == "end_level":
             self.total_score = self.score + (game.player.health * 100) - (game.obstacles_hit * 100)
-        elif game.is_playing:
-            if loop % 10 == 0:
+        elif game.state == "level":
+            if game.loop % 10 == 0:
                 self.score += 1
                 self.check_sound()
 
     def show(self, game, screen):
-        if game.is_level_complete and not game.in_boss_battle:
+        if game.state == "end_level":
             screen_rect = screen.get_rect()
             label1 = self.font.render(f"COMPLETION TIME: {self.score}", 1, self.color)
             label2 = self.font.render(f"REMAINING HEALTH: {game.player.health}", 1, self.color)

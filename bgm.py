@@ -1,4 +1,4 @@
-import pygame, os
+import pygame
 
 class BGM:
     def __init__(self, settings):
@@ -18,13 +18,13 @@ class BGM:
         self.bgm_channel.queue(self.fanfare_intro_sound)
 
     def update(self, game):
-        if game.is_level_complete:
+        if game.state == "end_level":
             if not self.bgm_channel.get_busy():
                 self.bgm_channel.queue(self.fanfare_sound)
-        elif game.in_boss_battle:
+        elif game.boss:
             if not self.bgm_channel.get_busy():
                 self.bgm_channel.queue(self.boss_sound)
-        elif game.is_playing:
+        elif game.state == "level":
             self.bgm_channel.queue(self.bgm_sound)
 
     def set_sounds(self):

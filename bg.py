@@ -1,10 +1,10 @@
 import os, pygame
 
 class BG:
-    def __init__(self, settings, x, width, height):
+    def __init__(self, settings, x, screen):
         self.settings = settings
-        self.width = width
-        self.height = height
+        self.width = screen.get_width()
+        self.height = screen.get_height()
         self.x = x
         self.set_surface()
 
@@ -22,10 +22,10 @@ class BG:
         self.surface = pygame.transform.scale(self.surface, (self.width, self.height))
 
 class FG:
-    def __init__(self, settings, x, width, height):
+    def __init__(self, settings, x, screen):
         self.settings = settings
-        self.width = width
-        self.height = height
+        self.width = screen.get_width()
+        self.height = screen.get_height()
         self.x = x
         self.set_surface()
 

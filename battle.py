@@ -2,13 +2,13 @@ import pygame, os, random
 from enemy import *
 
 class Battle:
-    def __init__(self, settings, game, screen_width, screen_height):
+    def __init__(self, settings, game, screen):
         self.settings = settings
         self.game = game
-        self.width = round(screen_width*0.9)
-        self.height = round(screen_height*0.75)
-        self.x = screen_width*0.5 - self.width*0.5
-        self.y = screen_height*0.5 - self.height*0.5
+        self.width = round(screen.get_width()*0.9)
+        self.height = round(screen.get_height()*0.75)
+        self.x = screen.get_width()*0.5 - self.width*0.5
+        self.y = screen.get_height()*0.5 - self.height*0.5
 
         # enemy positions
         self.enemy_speed = self.settings.get_level_setting("enemy_speed")
@@ -26,6 +26,9 @@ class Battle:
         # target positions
         self.enemy_current_pos = self.enemy_positions[0]
         self.player_target_pos = self.enemy_positions[0]
+
+        # portrait position
+        self.portrait_pos = self.x
 
         self.set_surfaces()
         self.set_rect()
@@ -53,31 +56,36 @@ class Battle:
         self.enemy_current_pos = new_enemy_positions[random_enemy_pos]
 
     def update(self, loop):
-        if loop % self.enemy_speed == 0:
-            self.set_enemy_pos()
+        if self.enemy.is_alive():
+            if loop % self.enemy_speed == 0:
+                self.set_enemy_pos()
+        else:
+            self.end()
 
     def show(self, screen):
         screen.blit(self.bg, (self.x, self.y))
         screen.blit(self.border, (self.x, self.y))
+        screen.blit(self.portrait, (self.x + 20, self.height - 60))
         if self.enemy.is_alive():
             self.enemy.show_health(screen)
             screen.blit(self.enemy.surface, self.enemy_current_pos)
             screen.blit(self.target, self.player_target_pos)
-        else:
-            self.end()
 
     def set_surfaces(self):
         border_path = self.settings.get_image_setting("battle_border")
         bg_path = self.settings.get_level_setting("bg")
         target_path = self.settings.get_image_setting("target")
+        portrait_path = self.settings.get_player_setting("portrait")
 
         border_image = pygame.image.load(border_path).convert_alpha()
         bg_image = pygame.image.load(bg_path).convert_alpha()
         target_image = pygame.image.load(target_path).convert_alpha()
+        portrait_image = pygame.image.load(portrait_path).convert_alpha()
 
         self.border = pygame.transform.scale(border_image, (self.width, self.height))
         self.bg = pygame.transform.scale(bg_image, (self.width, self.height))
         self.target = pygame.transform.scale(target_image, (50, 50))
+        self.portrait = pygame.transform.scale(portrait_image, (75, 75))
 
         self.overlay_colour = (0, 0, 0, 0)
 
@@ -124,10 +132,10 @@ class Battle:
         self.win_sound = pygame.mixer.Sound(win_path)
 
         # set volume
-        self.encounter_sound.set_volume(0.75)
-        self.fire_sound.set_volume(0.5)
-        self.miss_sound.set_volume(0.5)
-        self.win_sound.set_volume(0.75)
+        self.encounter_sound.set_volume(0.5)
+        self.fire_sound.set_volume(0.25)
+        self.miss_sound.set_volume(0.25)
+        self.win_sound.set_volume(0.5)
 
     def battle_controls(self, event):
         if self.enemy.is_alive():

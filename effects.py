@@ -1,7 +1,8 @@
 import pygame, os
 
 class Effects:
-    def __init__(self, settings, screen_width, screen_height):
+    def __init__(self, settings, screen):
+        screen_width = screen.get_width()
         self.settings = settings
         self.vfx_size_s = (round(screen_width/18), round(screen_width/18))
         self.vfx_size_m = (round(screen_width/15), round(screen_width/15))
@@ -21,6 +22,7 @@ class Effects:
         collide_path = self.settings.get_sfx_setting("collide")
         item_path = self.settings.get_sfx_setting("item")
         player_hit_path = self.settings.get_sfx_setting("player_hit")
+        player_shoot_path = self.settings.get_sfx_setting("fire")
         enemy_hit_path = self.settings.get_sfx_setting("enemy_hit")
         enemy_shoot_path = self.settings.get_sfx_setting("enemy_shoot")
 
@@ -29,20 +31,23 @@ class Effects:
         collide_sound = pygame.mixer.Sound(collide_path)
         item_sound = pygame.mixer.Sound(item_path)
         player_hit_sound = pygame.mixer.Sound(player_hit_path)
+        player_shoot_sound = pygame.mixer.Sound(player_shoot_path)
         enemy_hit_sound = pygame.mixer.Sound(enemy_hit_path)
         enemy_shoot_sound = pygame.mixer.Sound(enemy_shoot_path)
 
         # set volume
-        collide_sound.set_volume(0.75)
-        item_sound.set_volume(0.75)
-        player_hit_sound.set_volume(0.75)
-        enemy_hit_sound.set_volume(0.75)
-        enemy_shoot_sound.set_volume(0.75)
+        collide_sound.set_volume(0.5)
+        item_sound.set_volume(0.5)
+        player_hit_sound.set_volume(0.5)
+        player_shoot_sound.set_volume(0.5)
+        enemy_hit_sound.set_volume(0.5)
+        enemy_shoot_sound.set_volume(0.5)
 
         # add to dictionary
         self.sfx_dictionary = { "collide": collide_sound, 
                                 "potion": item_sound, 
                                 "player_hit": player_hit_sound,
+                                "player_shoot": player_shoot_sound,
                                 "enemy_hit": enemy_hit_sound,
                                 "enemy_shoot": enemy_shoot_sound } 
 
