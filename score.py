@@ -1,42 +1,41 @@
-import os, pygame
+import os, pygame, math
 
 class Score:
     def __init__(self, settings, ts):
         self.settings = settings
         self.total_score = ts
-        self.score = 0
+        self.time = 0
+        self.big_font = pygame.font.SysFont('monospace', 30, bold=True)
         self.font = pygame.font.SysFont('monospace', 18, bold=True)
         self.color = (255, 255, 255)
-        self.set_sound()
 
     def update(self, game):
-        if game.state == "end_level":
-            self.total_score = self.score + (game.player.health * 100) - (game.obstacles_hit * 100)
-        elif game.state == "level":
+        if game.state == "level" or game.state == "battle" or game.state == "boss":
             if game.loop % 10 == 0:
-                self.score += 1
-                self.check_sound()
+                self.time += 1
 
     def show(self, game, screen):
         if game.state == "end_level":
             screen_rect = screen.get_rect()
-            label1 = self.font.render(f"COMPLETION TIME: {self.score}", 1, self.color)
+
+            label0 = self.big_font.render("LEVEL COMPLETE", 1, self.color)
+            label1 = self.font.render(f"COMPLETION TIME: {self.time}", 1, self.color)
             label2 = self.font.render(f"REMAINING HEALTH: {game.player.health}", 1, self.color)
             label3 = self.font.render(f"OBSTACLES HIT: {game.obstacles_hit}", 1, self.color)
             label4 = self.font.render(f"TOTAL SCORE: {self.total_score}", 1, self.color)
-            screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery - 50))
-            screen.blit(label2, (screen_rect.centerx - label2.get_width()/2, screen_rect.centery - 25))
+
+            screen.blit(label0, (screen_rect.centerx - label0.get_width()/2, screen_rect.centery - 75))
+            screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery - 25))
+            screen.blit(label2, (screen_rect.centerx - label2.get_width()/2, screen_rect.centery))
             screen.blit(label3, (screen_rect.centerx - label3.get_width()/2, screen_rect.centery + 25))
-            screen.blit(label4, (screen_rect.centerx - label4.get_width()/2, screen_rect.centery + 50))
-        else:
-            label = self.font.render(f"TOTAL {self.total_score} {self.score}", 1, self.color)
+            screen.blit(label4, (screen_rect.centerx - label4.get_width()/2, screen_rect.centery + 75))
+
+        elif game.state == "level" or game.state == "boss":
+            label = self.font.render(f"SCORE: {self.total_score} TIME: {self.time}", 1, self.color)
             screen.blit(label, (10, 10))
 
-    def check_sound(self):
-        if self.score % 100 == 0 and self.score != 0:
-            self.sound.play()
-
-    def set_sound(self):
-        path = self.settings.get_sfx_setting("point")
-        self.sound = pygame.mixer.Sound(path)
-        self.sound.set_volume(0.25)
+    def calculate_score(self, game):
+        time_score = round(game.boss_distance - self.time) * 10
+        health_score = game.player.health * 100
+        obstacle_penalty = game.obstacles_hit * 100
+        self.total_score += time_score + health_score - obstacle_penalty

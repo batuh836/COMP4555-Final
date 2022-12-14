@@ -8,7 +8,7 @@ class Player:
         self.width = round(screen_width/15)
         self.height = self.width
         self.x = round(screen_width/60)
-        self.y = round(screen_height/1.5)
+        self.y = round(screen_height/1.65)
         self.font = pygame.font.SysFont('monospace', 18, bold=True)
         self.color = (255, 255, 255)
 

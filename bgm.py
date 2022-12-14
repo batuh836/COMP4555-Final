@@ -17,8 +17,11 @@ class BGM:
         self.bgm_channel.fadeout(3000)
         self.bgm_channel.queue(self.fanfare_intro_sound)
 
+    def end_bgm(self):
+        self.bgm_channel.fadeout(3000)
+
     def update(self, game):
-        if game.state == "end_level":
+        if game.state == "end_boss" or game.state == "end_level":
             if not self.bgm_channel.get_busy():
                 self.bgm_channel.queue(self.fanfare_sound)
         elif game.boss:

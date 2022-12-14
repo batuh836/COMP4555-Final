@@ -70,7 +70,7 @@ class Boss:
         if self.is_alive():
             if self.surface.get_alpha() < 255:
                 # enemy appears
-                self.surface.set_alpha(self.surface.get_alpha() + 1)
+                self.surface.set_alpha(self.surface.get_alpha() + 2)
             else:
                 # enemy shot
                 self.shot_timer += 1
@@ -97,17 +97,19 @@ class Boss:
 
         else:
             self.surface.set_alpha(self.surface.get_alpha() - 1)
-
-            if self.surface.get_alpha() > 0 and game.loop % 20 == 0:
-                effect_location = random.choice([
-                    self.rect.center,
-                    self.rect.topleft,
-                    self.rect.topright,
-                    self.rect.bottomleft,
-                    self.rect.bottomright
-                ])
-                game.vfxs.append(game.effects.create_vfx("hit", effect_location))
-                game.effects.play_sfx("enemy_hit") 
+            if self.surface.get_alpha() > 0:
+                if game.loop % 10 == 0:
+                    effect_location = random.choice([
+                        self.rect.center,
+                        self.rect.topleft,
+                        self.rect.topright,
+                        self.rect.bottomleft,
+                        self.rect.bottomright
+                    ])
+                    game.vfxs.append(game.effects.create_vfx("hit", effect_location))
+                    game.effects.play_sfx("enemy_hit") 
+            else:
+                game.end_level()
 
     def show(self, screen):
         screen.blit(self.surface, (self.x, self.y))

@@ -170,5 +170,5 @@ class Battle:
             keys = pygame.key.get_pressed()
             self.set_target(keys)
             if event.type == pygame.KEYDOWN:
-                if keys[pygame.K_SPACE]:
+                if event.key == pygame.K_SPACE:
                     self.fire()

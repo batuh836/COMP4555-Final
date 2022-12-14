@@ -8,6 +8,7 @@ from bgm import *
 from effects import *
 from shot import *
 from settings import *
+from overlay import *
 
 # screen
 SCREEN_WIDTH = 750
@@ -21,19 +22,21 @@ START_LEVEL_STATE = "start_level"
 LEVEL_STATE = "level"
 BATTLE_STATE = "battle"
 BOSS_STATE = "boss"
+END_BOSS_STATE = "end_boss"
 END_LEVEL_STATE = "end_level"
 GAME_OVER_STATE = "game_over_level"
 END_STATE = "end"
 
 class Game:
-    def __init__(self, game_state=START_STATE, level = 1, high_score = 0):
+    def __init__(self, game_state=START_STATE, level = 1, total_score = 0):
         # initialize objects
         self.level = level
         self.settings = Settings(self.level)
         self.bg = [BG(self.settings, 0, screen), BG(self.settings, SCREEN_WIDTH, screen)]
         self.fg = [FG(self.settings, 0, screen), FG(self.settings, SCREEN_WIDTH, screen)]
+        self.overlay = Overlay(screen)
         self.player = Player(self.settings, screen)
-        self.score = Score(self.settings, high_score)
+        self.score = Score(self.settings, total_score)
         self.component = Component(self.settings, screen)
         self.battle = Battle(self.settings, self, screen)
         self.bgm = BGM(self.settings)
@@ -62,6 +65,7 @@ class Game:
         self.bg[0].show(screen)
         self.player.show(screen)
         self.score.show(self, screen)
+        self.overlay.show(screen)
 
         self.set_labels()
         self.set_sound()
@@ -76,7 +80,8 @@ class Game:
         self.bgm.start_bgm()
 
     def start_next_level(self):
-        self.__init__(START_LEVEL_STATE, self.level + 1, self.score.total_score)
+        self.bgm.end_bgm()
+        self.__init__(START_STATE, self.level + 1, self.score.total_score)
 
     def start_battle(self):
         self.state = BATTLE_STATE
@@ -94,17 +99,29 @@ class Game:
         self.boss = Boss(self.settings, screen)
         self.bgm.start_boss()
 
+    def end_boss(self):
+        self.state = END_BOSS_STATE
+        self.score.calculate_score(self)
+        self.enemy_shots.clear()
+        self.components.clear()
+        self.bgm.start_victory()
+
     def end_level(self):
         self.state = END_LEVEL_STATE
-        self.components.clear()
+        self.boss = None
+        self.overlay.fade_in()
+
+    def end_game(self):
+        self.state = END_STATE
         self.bgm.start_victory()
 
     def over(self):
         self.state = GAME_OVER_STATE
-        self.sound.play()
+        self.bgm.end_bgm()
+        self.overlay.fade_in()
 
     def can_spawn(self, loop):
-        return loop % 50 == 0 and self.state == LEVEL_STATE or self.state == BOSS_STATE
+        return loop % 50 == 0 and self.state == LEVEL_STATE or self.state == BOSS_STATE and self.boss.is_alive()
 
     def spawn_component(self, component_type = None):
         #list with components
@@ -182,7 +199,7 @@ class Game:
                         self.vfxs.append(self.effects.create_vfx("hit", self.boss.rect.center))
                         self.spawn_component("item")
                     else:
-                        self.end_level()
+                        self.end_boss()
 
 
     def set_sound(self):
@@ -190,38 +207,66 @@ class Game:
         self.sound = pygame.mixer.Sound(path)
 
     def restart(self):
-        self.__init__(START_LEVEL_STATE, self.level, self.score.total_score)
+        self.__init__(START_STATE, self.level, self.score.total_score)
 
-    def game_controls(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            if self.state == START_STATE:
-                # start intro
-                self.state = START_LEVEL_STATE
+    def game_controls(self, event):
+        if event.type == pygame.KEYDOWN and not self.overlay.is_transitioning():
+            if event.key == pygame.K_SPACE:
+                if self.state == START_STATE:
+                    # start intro
+                    self.state = START_LEVEL_STATE
+                    self.overlay.fade_out()
 
-            elif self.state == START_LEVEL_STATE:
-                self.start()
+                elif self.state == START_LEVEL_STATE:
+                    self.start()
 
-            elif self.state == LEVEL_STATE or self.state == BOSS_STATE:
-                if self.player.on_ground:
-                    self.player.jump()
+                elif self.state == LEVEL_STATE or self.state == BOSS_STATE:
+                    if self.player.on_ground:
+                        self.player.jump()
 
-            elif self.state == END_LEVEL_STATE:
-                self.start_next_level()
+                elif self.state == END_LEVEL_STATE:
+                    if self.level == 5:
+                        self.end_game()
+                    else:
+                        self.start_next_level()
 
-            elif self.state == GAME_OVER_STATE: 
-                self.restart()
-        # skip to next level
-        if keys[pygame.K_UP]:
-            if self.state == LEVEL_STATE or self.state == BOSS_STATE:
-                self.start_next_level()
+                elif self.state == GAME_OVER_STATE: 
+                    self.restart()
+            # skip to next level
+            if event.key == pygame.K_UP:
+                if self.state == LEVEL_STATE or self.state == BOSS_STATE:
+                    self.start_next_level()
 
     def start_screen(self):
         screen_rect = screen.get_rect()
-        label1 = self.big_font.render(f"RPG GO!", 1, (255, 255, 255))
-        label2 = self.small_font.render(f"Press SPACE to Start", 1, (255, 255, 255))
+
+        if self.level == 1:
+            label1 = self.big_font.render(f"RPG GO!", 1, (255, 255, 255))
+            label2 = self.small_font.render(f"Press SPACE to Start", 1, (255, 255, 255))
+        else:
+            label1 = self.big_font.render(f"LEVEL {self.level}", 1, (255, 255, 255))
+            label2 = self.small_font.render(f"Press SPACE to Start", 1, (255, 255, 255))
+
         screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery))
         screen.blit(label2, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery + 50))
+
+    def over_screen(self):
+        screen_rect = screen.get_rect()
+
+        label1 = self.big_font.render(f"GAME OVER", 1, (255, 255, 255))
+        label2 = self.small_font.render(f"Press SPACE to Continue", 1, (255, 255, 255))
+
+        screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery))
+        screen.blit(label2, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery + 50))
+
+    def end_screen(self):
+        screen_rect = screen.get_rect()
+
+        label1 = self.big_font.render(f"CONGRATULATIONS", 1, (255, 255, 255))
+        label2 = self.small_font.render(f"Thanks For Playing RPG GO!", 1, (255, 255, 255))
+
+        screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery))
+        screen.blit(label2, (screen_rect.centerx - label2.get_width()/2, screen_rect.centery + 50))
 
     def run(self):
         # controls
@@ -233,10 +278,14 @@ class Game:
             if self.state == BATTLE_STATE:
                 self.battle.battle_controls(event)
             else:
-                self.game_controls()
+                self.game_controls(event)
 
         # game states
         if self.state == START_STATE:
+            # overlay
+            self.overlay.update(self.loop)
+            self.overlay.show(screen)
+
             # show logo
             self.start_screen()
 
@@ -256,14 +305,24 @@ class Game:
             #player
             self.player.show(screen)
 
+            # overlay
+            self.overlay.update(self.loop)
+            self.overlay.show(screen)
+
         elif self.state == GAME_OVER_STATE:
-            # show game over screen
-            pass
+            # overlay
+            self.overlay.update(self.loop)
+            self.overlay.show(screen)
+
+            self.over_screen()
 
         elif self.state == END_STATE:
+            # overlay
+            self.overlay.update(self.loop)
+            self.overlay.show(screen)
+            
             # show credits
-            pass
-
+            self.end_screen()
         else:
             # game loop
             self.loop += 1
@@ -331,19 +390,25 @@ class Game:
                 # boss
                 if self.boss:
                     self.boss.update(self)
-                    self.boss.show(screen)
-                    self.collision(self.player, self.boss)
 
-                    # boss shot
-                    for enemy_shot in self.enemy_shots:
-                        enemy_shot.update(self.loop)
-                        enemy_shot.show(screen)
-                        self.collision(self.player, enemy_shot)
+                    if self.state != END_LEVEL_STATE:
+                        self.boss.show(screen)
+                        self.collision(self.player, self.boss)
+
+                        # boss shot
+                        for enemy_shot in self.enemy_shots:
+                            enemy_shot.update(self.loop)
+                            enemy_shot.show(screen)
+                            self.collision(self.player, enemy_shot)
 
             # bgm
             self.bgm.update(self)
 
-            # ui
+            # overlay
+            self.overlay.update(self.loop)
+            self.overlay.show(screen)
+
+            # score
             self.score.update(self)
             self.score.show(self, screen)
 
