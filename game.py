@@ -50,8 +50,8 @@ class Game:
         self.distance = 0
         self.item_timer = 500
         self.boss = None
-        # self.boss_distance = self.settings.get_level_setting("boss_distance")
-        self.boss_distance = 500
+        self.boss_distance = self.settings.get_level_setting("boss_distance")
+        # self.boss_distance = 500
         self.obstacles_hit = 0
         self.component_dist = round(SCREEN_WIDTH/5)
 
@@ -69,11 +69,11 @@ class Game:
 
         self.set_labels()
         self.set_sound()
-        self.spawn_component()
 
     def set_labels(self):
         self.big_font = pygame.font.SysFont('monospace', 48, bold=True)
-        self.small_font = pygame.font.SysFont('monospace', 32)
+        self.small_font = pygame.font.SysFont('monospace', 32, bold=True)
+        self.logo = pygame.image.load("assets/images/misc/logo.png").convert_alpha()
     
     def start(self):
         self.state = LEVEL_STATE
@@ -120,38 +120,38 @@ class Game:
         self.bgm.end_bgm()
         self.overlay.fade_in()
 
-    def can_spawn(self, loop):
-        return loop % 50 == 0 and self.state == LEVEL_STATE or self.state == BOSS_STATE and self.boss.is_alive()
+    def can_spawn(self):
+        return self.loop % 50 == 0 and self.state == LEVEL_STATE or self.state == BOSS_STATE
 
-    def spawn_component(self, component_type = None):
-        #list with components
-        if len(self.components) > 0:
-            prev_component = self.components[-1]
-            #calculate distance between obstacles
-            dist = prev_component.x + self.player.width + self.component_dist
-            x = random.randint(round(dist), round(SCREEN_WIDTH/2 + dist))
-        else:
-            x = random.randint(SCREEN_WIDTH, round(SCREEN_WIDTH*1.5))
+    def spawn_component(self, component_type = "", amount = 1):
+        for _ in range(amount):
+            if len(self.components) > 0:
+                last_component = self.components[-1]
+                #calculate distance between obstacles
+                dist = last_component.x + self.player.width + self.component_dist
+                x = random.randint(round(dist), round(SCREEN_WIDTH/2 + dist))
+            else:
+                x = random.randint(SCREEN_WIDTH, round(SCREEN_WIDTH*1.5))
 
-        if component_type == None:
-            component_type = random.choice(["obstacle", "enemy"])
+            if component_type == "":
+                component_type = random.choice(["obstacle", "enemy"])
 
-        if component_type == "obstacle":
-            #create new obstacle
-            new_cactus = self.component.create_obstacle(x)
-            self.components.append(new_cactus)
+            if component_type == "obstacle":
+                #create new obstacle
+                new_cactus = self.component.create_obstacle(x)
+                self.components.append(new_cactus)
 
-        elif component_type == "enemy":
-            #chose y value for enemy
-            y = random.choice([SCREEN_HEIGHT/2.5, SCREEN_HEIGHT/1.5])
-            #create new enemy
-            new_enemy = self.component.create_enemy(x, y)
-            self.components.append(new_enemy)
+            if component_type == "enemy":
+                #chose y value for enemy
+                y = random.choice([SCREEN_HEIGHT/2.5, SCREEN_HEIGHT/1.5])
+                #create new enemy
+                new_enemy = self.component.create_enemy(x, y)
+                self.components.append(new_enemy)
 
-        elif component_type == "item":
-            #create new item
-            new_item = self.component.create_item(x, SCREEN_HEIGHT)
-            self.components.append(new_item)
+            if component_type == "item":
+                #create new item
+                new_item = self.component.create_item(x, SCREEN_HEIGHT)
+                self.components.append(new_item)
 
     def collision(self, obj1, obj2):
         if obj1.rect.colliderect(obj2.rect):
@@ -190,7 +190,7 @@ class Game:
                 if isinstance(obj2, ShotEffect):
                     self.player_shots.remove(obj2)
                     self.boss.health -= 1
-                    self.boss.dx += 0.1
+                    self.boss.dx += 0.25
                     self.boss.shot_time -= 10
 
                     if self.boss.is_alive():
@@ -234,21 +234,21 @@ class Game:
                     self.restart()
             # skip to next level
             if event.key == pygame.K_UP:
-                if self.state == LEVEL_STATE or self.state == BOSS_STATE:
+                if self.state == START_LEVEL_STATE or self.state == LEVEL_STATE:
                     self.start_next_level()
 
     def start_screen(self):
         screen_rect = screen.get_rect()
 
         if self.level == 1:
-            label1 = self.big_font.render(f"RPG GO!", 1, (255, 255, 255))
-            label2 = self.small_font.render(f"Press SPACE to Start", 1, (255, 255, 255))
+            label = self.small_font.render(f"Press SPACE to Start", 1, (255, 255, 255))
+            screen.blit(self.logo, (screen_rect.centerx - self.logo.get_width()/2, 25))
+            screen.blit(label, (screen_rect.centerx - label.get_width()/2, screen_rect.centery + 75))
         else:
             label1 = self.big_font.render(f"LEVEL {self.level}", 1, (255, 255, 255))
             label2 = self.small_font.render(f"Press SPACE to Start", 1, (255, 255, 255))
-
-        screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery))
-        screen.blit(label2, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery + 50))
+            screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery - 25))
+            screen.blit(label2, (screen_rect.centerx - label2.get_width()/2, screen_rect.centery + 50))
 
     def over_screen(self):
         screen_rect = screen.get_rect()
@@ -256,8 +256,8 @@ class Game:
         label1 = self.big_font.render(f"GAME OVER", 1, (255, 255, 255))
         label2 = self.small_font.render(f"Press SPACE to Continue", 1, (255, 255, 255))
 
-        screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery))
-        screen.blit(label2, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery + 50))
+        screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery - 25))
+        screen.blit(label2, (screen_rect.centerx - label2.get_width()/2, screen_rect.centery + 50))
 
     def end_screen(self):
         screen_rect = screen.get_rect()
@@ -265,7 +265,7 @@ class Game:
         label1 = self.big_font.render(f"CONGRATULATIONS", 1, (255, 255, 255))
         label2 = self.small_font.render(f"Thanks For Playing RPG GO!", 1, (255, 255, 255))
 
-        screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery))
+        screen.blit(label1, (screen_rect.centerx - label1.get_width()/2, screen_rect.centery - 25))
         screen.blit(label2, (screen_rect.centerx - label2.get_width()/2, screen_rect.centery + 50))
 
     def run(self):
@@ -337,16 +337,16 @@ class Game:
                 self.distance += 1
 
                 # item timer
-                if self.state != END_LEVEL_STATE and self.loop % self.item_timer == 0:
+                if self.can_spawn() and self.loop % self.item_timer == 0:
                     self.spawn_component("item")  
 
-                if self.state != BOSS_STATE:
+                if self.state == LEVEL_STATE:
                     # increase speed
                     if self.loop % 1000 == 0:
-                        self.speed += 0.5
+                        self.speed += 0.25
 
                     # boss timer
-                    if self.distance == self.boss_distance:
+                    if self.distance >= self.boss_distance:
                         self.start_boss()
                 
                 #background
@@ -360,7 +360,7 @@ class Game:
                     fg.show(screen)
 
                 #components
-                if self.can_spawn(self.loop):
+                if self.can_spawn():
                     self.spawn_component()
 
                 for component in self.components:
@@ -371,21 +371,6 @@ class Game:
                         component.update(-self.speed, self.loop)
                         component.show(screen)
                         self.collision(self.player, component)
-                
-                #player
-                self.player.update(self.loop)
-                self.player.show(screen)
-
-                if self.state == END_LEVEL_STATE:
-                    self.player.exit(screen)
-                else:
-                    self.player.show_health(screen)
-
-                # player shot
-                for player_shot in self.player_shots:
-                    player_shot.update(self.loop)
-                    player_shot.show(screen)
-                    self.collision(self.boss, player_shot)
 
                 # boss
                 if self.boss:
@@ -400,6 +385,22 @@ class Game:
                             enemy_shot.update(self.loop)
                             enemy_shot.show(screen)
                             self.collision(self.player, enemy_shot)
+                
+                #player
+                self.player.update(self.loop)
+                self.player.show(screen)
+
+                if self.state == END_LEVEL_STATE:
+                    self.player.exit(screen)
+                else:
+                    self.player.show_health(screen)
+
+                # player shot
+                for player_shot in self.player_shots:
+                    player_shot.update(self.loop)
+                    player_shot.show(screen)
+                    if self.boss:
+                        self.collision(self.boss, player_shot)
 
             # bgm
             self.bgm.update(self)

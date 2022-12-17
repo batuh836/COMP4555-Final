@@ -25,8 +25,8 @@ class Component:
     def set_obstacle_surface(self, screen_width, screen_height):
         path = self.settings.get_level_setting("obstacle")
         image = pygame.image.load(path).convert_alpha()
-        size = (round(screen_width*0.075), round(screen_height*0.25))
-        self.obstacle_y = round(screen_height/1.75)
+        size = (round(screen_width*0.075), round(screen_height*0.2))
+        self.obstacle_y = round(screen_height/1.65)
         self.obstacle_surface = pygame.transform.scale(image, size)
 
     def set_enemy_surface(self):
@@ -51,7 +51,7 @@ class Item:
         self.jump_time = -2.0
         self.jump_duration = 2.0
         self.jump_interval = 0.025
-        self.jump_height = round(screen_height*0.65)
+        self.jump_height = round(screen_height*0.5)
         self.set_rect()
     
     def update(self, dx, loop):

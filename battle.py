@@ -90,7 +90,7 @@ class Battle:
 
     def set_surfaces(self):
         border_path = self.settings.get_image_setting("battle_border")
-        bg_path = self.settings.get_level_setting("bg")
+        bg_path = self.settings.get_level_setting("battle_bg")
         target_path = self.settings.get_image_setting("target")
         attack_path = self.settings.get_image_setting("attack")
         portrait_path = self.settings.get_player_setting("portrait")

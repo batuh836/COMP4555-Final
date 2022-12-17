@@ -33,7 +33,16 @@ class Player:
     def update(self, loop):
         #jumping
         if self.jumping:
-            self.surface = self.surfaces[1]
+            # jumping and collided
+            if self.is_hit:
+                self.surface = self.hit_surface
+                if loop % 6 == 0:
+                    self.hit_timer += 1
+                    if self.hit_timer >= self.hit_duration:
+                        self.is_hit = False
+            else:
+                self.surface = self.surfaces[1]
+
             if self.jump_time <= self.jump_duration:
                 #calculate jump values
                 time_elapsed = self.jump_time/self.jump_duration

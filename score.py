@@ -35,7 +35,8 @@ class Score:
             screen.blit(label, (10, 10))
 
     def calculate_score(self, game):
-        time_score = round(game.boss_distance - self.time) * 10
+        boss_completion = 2500
+        time_score = round((game.boss_distance + boss_completion)/10 - self.time) * 10
         health_score = game.player.health * 100
         obstacle_penalty = game.obstacles_hit * 100
         self.total_score += time_score + health_score - obstacle_penalty
