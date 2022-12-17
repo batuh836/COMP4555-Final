@@ -74,8 +74,13 @@ class Game:
         self.big_font = pygame.font.SysFont('monospace', 48, bold=True)
         self.small_font = pygame.font.SysFont('monospace', 32, bold=True)
         self.logo = pygame.image.load("assets/images/misc/logo.png").convert_alpha()
+
+    def setup_level(self):
+        self.state = START_LEVEL_STATE
+        self.effects.play_sfx("potion")
+        self.overlay.fade_out()
     
-    def start(self):
+    def start_level(self):
         self.state = LEVEL_STATE
         self.bgm.start_bgm()
 
@@ -119,6 +124,9 @@ class Game:
         self.state = GAME_OVER_STATE
         self.bgm.end_bgm()
         self.overlay.fade_in()
+
+    def restart(self):
+        self.__init__(START_STATE, self.level, self.score.total_score)
 
     def can_spawn(self):
         return self.loop % 50 == 0 and self.state == LEVEL_STATE or self.state == BOSS_STATE
@@ -201,24 +209,18 @@ class Game:
                     else:
                         self.end_boss()
 
-
     def set_sound(self):
         path = self.settings.get_sfx_setting("die")
         self.sound = pygame.mixer.Sound(path)
-
-    def restart(self):
-        self.__init__(START_STATE, self.level, self.score.total_score)
 
     def game_controls(self, event):
         if event.type == pygame.KEYDOWN and not self.overlay.is_transitioning():
             if event.key == pygame.K_SPACE:
                 if self.state == START_STATE:
-                    # start intro
-                    self.state = START_LEVEL_STATE
-                    self.overlay.fade_out()
+                    self.setup_level()
 
                 elif self.state == START_LEVEL_STATE:
-                    self.start()
+                    self.start_level()
 
                 elif self.state == LEVEL_STATE or self.state == BOSS_STATE:
                     if self.player.on_ground:

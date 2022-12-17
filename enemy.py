@@ -22,7 +22,7 @@ class Enemy:
         for _ in range(self.health):
             health_bar += "|"
 
-        label = self.font.render(f"{health_bar} HP", 1, self.color)
+        label = self.font.render(f"{health_bar} ENEMY", 1, self.color)
         location = (screen.get_width() * 0.9 - label.get_width(), screen.get_height() * 0.25)
         screen.blit(label, location)
 

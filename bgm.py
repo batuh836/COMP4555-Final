@@ -6,6 +6,7 @@ class BGM:
         self.set_sounds()
 
     def start_bgm(self):
+        self.bgm_channel.set_volume(1.0)
         self.bgm_channel.play(self.bgm_intro_sound)
         self.bgm_channel.queue(self.bgm_sound)
 
