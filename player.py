@@ -15,7 +15,7 @@ class Player:
         self.health = 10
         self.is_hit = False
         self.hit_timer = 0
-        self.hit_duration = 2
+        self.hit_duration = 5
         self.ground_height = round(screen_height/1.5)
         self.jump_time = -1.0
         self.jump_duration = 1.0

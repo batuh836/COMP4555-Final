@@ -201,7 +201,7 @@ class Game:
 
                 elif isinstance(obj2, ShotEffect):
                     self.enemy_shots.remove(obj2)
-                    self.player.health -= 2
+                    self.player.health -= self.boss.strength
                     self.player.hit()
                     self.effects.play_sfx("player_hit")
 

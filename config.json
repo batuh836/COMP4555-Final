@@ -35,7 +35,7 @@
             "item" : "assets/images/components/potion.png",
             "boss_name" : "LEVIATHAN",
             "boss_health" : 9,
-            "boss_strength" : 3,
+            "boss_strength" : 4,
             "boss_speed" : 3.1,
             "boss_shot_time" : 275,
             "boss_distance" : 4000,

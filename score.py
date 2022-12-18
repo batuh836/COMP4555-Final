@@ -35,7 +35,7 @@ class Score:
             screen.blit(label, (10, 10))
 
     def calculate_score(self, game):
-        boss_completion = 2500
+        boss_completion = 3000
         time_score = round((game.boss_distance + boss_completion)/10 - self.time) * 10
         if time_score < 0:
             time_score = 0
