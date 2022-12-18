@@ -137,12 +137,26 @@ class Game:
                 last_component = self.components[-1]
                 #calculate distance between obstacles
                 dist = last_component.x + self.player.width + self.component_dist
-                x = random.randint(round(dist), round(SCREEN_WIDTH/2 + dist))
+                x = random.randint(round(dist), round(SCREEN_WIDTH/3 + dist))
             else:
-                x = random.randint(SCREEN_WIDTH, round(SCREEN_WIDTH*1.5))
+                x = random.randint(SCREEN_WIDTH, round(SCREEN_WIDTH * 1.5))
 
             if component_type == "":
-                component_type = random.choice(["obstacle", "enemy"])
+                num_enemies = 0
+                num_obstacles = 0
+
+                for component in self.components:
+                    if isinstance(component, Enemy_Field):
+                        num_enemies += 1
+                    if isinstance(component, Obstacle):
+                        num_obstacles += 1
+
+                if num_enemies > num_obstacles:
+                    component_type = "obstacle"
+                elif num_enemies < num_obstacles:
+                    component_type = "enemy"
+                else:
+                    component_type = random.choice(["obstacle", "enemy"])
 
             if component_type == "obstacle":
                 #create new obstacle
