@@ -249,9 +249,9 @@ class Game:
                 elif self.state == GAME_OVER_STATE: 
                     self.restart()
             # skip to next level
-            if event.key == pygame.K_UP:
-                if self.state == START_LEVEL_STATE or self.state == LEVEL_STATE:
-                    self.start_next_level()
+            # if event.key == pygame.K_UP:
+            #     if self.state == START_LEVEL_STATE or self.state == LEVEL_STATE:
+            #         self.start_next_level()
 
     def start_screen(self):
         screen_rect = screen.get_rect()

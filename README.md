@@ -11,3 +11,5 @@ Dodge obstacles, defeat enemies, and break-through bosses in this thrilling adve
 In no other game will you experience the thrill of a runner, using the skill of a shooter, through the lens of a classic RPG!
 
 How fast can you save the world? 
+
+To play RPG GO! run the rpg_go.py file!
