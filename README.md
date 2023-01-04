@@ -13,3 +13,5 @@ In no other game will you experience the thrill of a runner, using the skill of 
 How fast can you save the world? 
 
 To play RPG GO! run the rpg_go.py file!
+
+Watch the trailer here: https://drive.google.com/file/d/1alrr0kD947vxfcrr_97Da_0t5PXMwOxI/view?usp=share_link
